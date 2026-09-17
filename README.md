@@ -4,24 +4,29 @@ A polished, browser-based **spinning wheel** for picking your next RuneScape act
 
 No install, no backend. Open it in a browser and spin.
 
+> **Disclaimer:** Shamelessly vibecoded for personal use. Expect quirks, feel free to report bugs, it's been working great for me though!.
+
 ---
 
 ## Features
 
 ### Main wheel
+
 - Canvas-based wheel with smooth ease-out animation
 - Segments colored by tag
 - Result always matches the segment under the top pointer
 
 ### Sub-wheels
+
 - Attach secondary options to any activity (e.g. **Runecrafting → Blood runes, Soul runes, …**)
 - Sub-wheel auto-spins after the main wheel lands on an activity that has subs
 - Load a sub-wheel anytime with **🎡** without spinning the main wheel
 - **SPIN SUB** spins the sub-wheel on its own
 
 ### Options & tags
+
 | Built-in tags | Purpose |
-|---|---|
+| --- | --- |
 | **Boss** | PvM / raids |
 | **Skilling** | Training skills |
 | **Other** | Misc activities |
@@ -32,21 +37,26 @@ No install, no backend. Open it in a browser and spin.
 - Activities sorted by tag, then alphabetically within each tag
 
 ### Filters
+
 - **Multi-select** tag filters (e.g. Boss + Skilling, exclude AFK)
 - **All** clears the filter and shows everything
 
 ### Visibility
+
 - **👁** on each row hides that activity from the wheel (stays in the list, greyed out)
 - Click again to show it
 - **Enable all / Disable all** applies only to activities in the *current tag filter*
 
 ### Themes
+
 - **OSRS** — stone panels, gold trim, classic game UI feel
 - **Modern** — clean dark UI
 - Toggle in the top-right; preference is saved
 
 ### Persistence
+
 Everything is stored in **localStorage** in your browser:
+
 - Activities & sub-options
 - Custom tags
 - Theme preference
@@ -57,10 +67,12 @@ Everything is stored in **localStorage** in your browser:
 ## Quick start
 
 ### Option A — Single file
-1. Open [`wheel.html`](wheel.html) in any modern browser  
+
+1. Open `wheel.html` in any modern browser
 2. That’s it — CSS and JS are inlined
 
 ### Option B — Multi-file (for development)
+
 1. Serve the folder (or open `index.html` with the other files beside it):
 
 ```bash
@@ -70,7 +82,7 @@ python3 -m http.server 8000
 ```
 
 | File | Role |
-|---|---|
+| --- | --- |
 | `index.html` | Structure |
 | `styles.css` | OSRS + Modern themes |
 | `app.js` | Wheel logic, tags, storage |
