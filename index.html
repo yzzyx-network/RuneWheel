@@ -34,11 +34,14 @@
           <div id="subWheelWrap" class="wheel-container sub-wheel hidden">
             <canvas id="subWheelCanvas" width="280" height="280"></canvas>
             <div class="pointer sub-pointer"></div>
-            <span class="wheel-label">Sub</span>
+            <span class="wheel-label" id="subWheelLabel">Sub</span>
           </div>
         </div>
 
-        <button id="spinBtn" class="spin-btn">SPIN</button>
+        <div class="spin-row">
+          <button id="spinBtn" class="spin-btn">SPIN</button>
+          <button id="spinSubBtn" class="spin-btn spin-sub-btn hidden">SPIN SUB</button>
+        </div>
 
         <div id="result" class="result hidden">
           <span class="result-label">Selected:</span>

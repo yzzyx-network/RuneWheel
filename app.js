@@ -73,6 +73,8 @@
   let currentRotation = 0;
   let subRotation = 0;
   let expandedId = null;
+  let currentSubItems = []; // subs currently on the sub-wheel
+  let currentSubParent = null; // parent option for the sub-wheel
 
   // DOM
   const canvas = document.getElementById('wheelCanvas');
@@ -81,6 +83,8 @@
   const subCtx = subCanvas.getContext('2d');
   const subWheelWrap = document.getElementById('subWheelWrap');
   const spinBtn = document.getElementById('spinBtn');
+  const spinSubBtn = document.getElementById('spinSubBtn');
+  const subWheelLabel = document.getElementById('subWheelLabel');
   const resultEl = document.getElementById('result');
   const resultText = document.getElementById('resultText');
   const resultTag = document.getElementById('resultTag');
@@ -434,6 +438,7 @@
           <span class="name" title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</span>
           ${subCount > 0 ? `<span class="sub-count">${subCount}</span>` : ''}
           <span class="tag-label ${badge.className}" style="${badge.style}">${escapeHtml(label)}</span>
+          ${subCount > 0 ? `<button class="load-sub-btn" title="Load sub-wheel" data-action="load-sub" data-id="${opt.id}">🎡</button>` : ''}
           <button class="expand-btn ${isOpen ? 'open' : ''}" title="Sub-options" data-action="expand" data-id="${opt.id}">
             ${isOpen ? '▾' : '▸'}
           </button>
@@ -490,6 +495,42 @@
   }
 
   // ---------- Spin ----------
+  function normalizeAngle(a) {
+    const tau = Math.PI * 2;
+    return ((a % tau) + tau) % tau;
+  }
+
+  /** Index of the segment under the top pointer (-π/2) given current rotation. */
+  function getIndexAtPointer(rotation, itemCount) {
+    if (itemCount <= 0) return 0;
+    const tau = Math.PI * 2;
+    const arc = tau / itemCount;
+    // Angle of pointer relative to where segment 0 starts
+    const relative = normalizeAngle(-Math.PI / 2 - rotation);
+    // Tiny epsilon avoids floating-point landing exactly on a boundary
+    let idx = Math.floor((relative + 1e-9) / arc);
+    if (idx >= itemCount) idx = 0;
+    return idx;
+  }
+
+  /**
+   * Compute a final rotation so segment targetIndex's center sits under the top pointer.
+   * Always spins in the same direction (negative delta) with several full turns.
+   */
+  function computeTargetRotation(current, itemCount, targetIndex) {
+    const tau = Math.PI * 2;
+    const arc = tau / itemCount;
+    // Segment i center is at rotation + i*arc + arc/2. Put that at the top (-π/2).
+    const targetRot = -Math.PI / 2 - targetIndex * arc - arc / 2;
+    // delta so current+delta ≡ targetRot (mod τ), preferring negative (consistent spin dir)
+    let delta = targetRot - current;
+    // Map into (-τ, 0]
+    delta = delta - Math.ceil(delta / tau) * tau;
+    if (Math.abs(delta) < 1e-10) delta = -tau;
+    const extraSpins = 5 + Math.random() * 4;
+    return current + delta - extraSpins * tau;
+  }
+
   function animateSpin({ startRot, endRot, duration, onFrame, onDone }) {
     const startTime = performance.now();
     function easeOutCubic(t) {
@@ -506,28 +547,58 @@
     requestAnimationFrame(frame);
   }
 
-  function computeTargetRotation(current, itemCount, targetIndex) {
-    const segmentAngle = (Math.PI * 2) / itemCount;
-    const targetMiddle = -Math.PI / 2;
-    const targetRotation =
-      targetMiddle - targetIndex * segmentAngle - segmentAngle / 2;
+  function setSpinning(active) {
+    isSpinning = active;
+    spinBtn.disabled = active || getFilteredOptions().length === 0;
+    if (spinSubBtn) {
+      spinSubBtn.disabled = active || currentSubItems.length === 0;
+    }
+  }
 
-    let delta = targetRotation - (current % (Math.PI * 2));
-    while (delta > 0) delta -= Math.PI * 2;
-    const extraSpins = 5 + Math.random() * 4;
-    delta -= extraSpins * Math.PI * 2;
-    return current + delta;
+  function showSubWheel(parentOpt) {
+    const subs = (parentOpt && parentOpt.subs) || [];
+    if (subs.length === 0) {
+      hideSubWheel();
+      return;
+    }
+    currentSubParent = parentOpt;
+    currentSubItems = [...subs];
+    subRotation = 0;
+    subWheelWrap.classList.remove('hidden');
+    if (subWheelLabel) {
+      subWheelLabel.textContent = parentOpt.name.length > 14
+        ? parentOpt.name.slice(0, 13) + '…'
+        : parentOpt.name;
+    }
+    if (spinSubBtn) {
+      spinSubBtn.classList.remove('hidden');
+      spinSubBtn.disabled = isSpinning || currentSubItems.length === 0;
+    }
+    // Wait a frame so layout knows the sub-wheel is visible, then size + draw
+    requestAnimationFrame(() => {
+      resizeCanvases();
+      drawSubWheel(currentSubItems);
+    });
+  }
+
+  function hideSubWheel() {
+    currentSubParent = null;
+    currentSubItems = [];
+    subWheelWrap.classList.add('hidden');
+    if (spinSubBtn) spinSubBtn.classList.add('hidden');
+    resultSubLine.classList.add('hidden');
   }
 
   function spin() {
     const filtered = getFilteredOptions();
     if (filtered.length === 0 || isSpinning) return;
 
-    isSpinning = true;
-    spinBtn.disabled = true;
+    setSpinning(true);
     resultEl.classList.add('hidden');
     resultSubLine.classList.add('hidden');
-    subWheelWrap.classList.add('hidden');
+    // Keep sub-wheel if user loaded one manually; hide only when starting a full main spin
+    // (will re-show if result has subs)
+    hideSubWheel();
 
     const randomIndex = Math.floor(Math.random() * filtered.length);
     const endRotation = computeTargetRotation(
@@ -548,7 +619,57 @@
       onDone: (finalRot) => {
         currentRotation = finalRot;
         drawMainWheel();
-        handleMainResult(filtered[randomIndex]);
+        // Trust the visual position under the pointer, not the pre-chosen index
+        const landed = getIndexAtPointer(finalRot, filtered.length);
+        handleMainResult(filtered[landed]);
+      },
+    });
+  }
+
+  function spinSub() {
+    if (isSpinning || currentSubItems.length === 0) return;
+
+    setSpinning(true);
+    resultSubLine.classList.add('hidden');
+
+    const randomIndex = Math.floor(Math.random() * currentSubItems.length);
+    const endRotation = computeTargetRotation(
+      subRotation,
+      currentSubItems.length,
+      randomIndex
+    );
+    const duration = 2800 + Math.random() * 1000;
+
+    animateSpin({
+      startRot: subRotation,
+      endRot: endRotation,
+      duration,
+      onFrame: (rot) => {
+        subRotation = rot;
+        drawSubWheel(currentSubItems);
+      },
+      onDone: (finalRot) => {
+        subRotation = finalRot;
+        drawSubWheel(currentSubItems);
+        const landed = getIndexAtPointer(finalRot, currentSubItems.length);
+        const subSelected = currentSubItems[landed];
+        // If no main result yet, show parent + sub
+        if (currentSubParent) {
+          resultText.textContent = currentSubParent.name;
+          const info = getTagInfo(currentSubParent.tag);
+          resultTag.textContent = info.label;
+          if (BUILTIN_TAGS[currentSubParent.tag]) {
+            resultTag.className = `result-tag ${currentSubParent.tag}`;
+            resultTag.style.cssText = '';
+          } else {
+            resultTag.className = 'result-tag custom';
+            resultTag.style.cssText = `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`;
+          }
+          resultEl.classList.remove('hidden');
+        }
+        resultSubText.textContent = subSelected.name;
+        resultSubLine.classList.remove('hidden');
+        setSpinning(false);
       },
     });
   }
@@ -570,18 +691,25 @@
 
     const subs = selected.subs || [];
     if (subs.length === 0) {
-      isSpinning = false;
-      spinBtn.disabled = false;
+      setSpinning(false);
       return;
     }
 
-    subWheelWrap.classList.remove('hidden');
-    subRotation = 0;
-    drawSubWheel(subs);
+    showSubWheel(selected);
 
+    // Auto-spin sub after a short pause
     setTimeout(() => {
-      const subIndex = Math.floor(Math.random() * subs.length);
-      const endSubRot = computeTargetRotation(subRotation, subs.length, subIndex);
+      if (currentSubItems.length === 0) {
+        setSpinning(false);
+        return;
+      }
+      setSpinning(true);
+      const subIndex = Math.floor(Math.random() * currentSubItems.length);
+      const endSubRot = computeTargetRotation(
+        subRotation,
+        currentSubItems.length,
+        subIndex
+      );
       const subDuration = 2800 + Math.random() * 1000;
 
       animateSpin({
@@ -590,15 +718,15 @@
         duration: subDuration,
         onFrame: (rot) => {
           subRotation = rot;
-          drawSubWheel(subs);
+          drawSubWheel(currentSubItems);
         },
         onDone: (finalRot) => {
           subRotation = finalRot;
-          drawSubWheel(subs);
-          resultSubText.textContent = subs[subIndex].name;
+          drawSubWheel(currentSubItems);
+          const landed = getIndexAtPointer(finalRot, currentSubItems.length);
+          resultSubText.textContent = currentSubItems[landed].name;
           resultSubLine.classList.remove('hidden');
-          isSpinning = false;
-          spinBtn.disabled = false;
+          setSpinning(false);
         },
       });
     }, 400);
@@ -606,6 +734,7 @@
 
   // ---------- Events ----------
   spinBtn.addEventListener('click', spin);
+  if (spinSubBtn) spinSubBtn.addEventListener('click', spinSub);
 
   addForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -644,6 +773,27 @@
     if (action === 'expand') {
       expandedId = expandedId === id ? null : id;
       renderList();
+      return;
+    }
+
+    if (action === 'load-sub') {
+      const opt = options.find((o) => o.id === id);
+      if (opt && (opt.subs || []).length > 0) {
+        showSubWheel(opt);
+        // Reflect parent in result area (cleared sub line until they spin)
+        resultText.textContent = opt.name;
+        const info = getTagInfo(opt.tag);
+        resultTag.textContent = info.label;
+        if (BUILTIN_TAGS[opt.tag]) {
+          resultTag.className = `result-tag ${opt.tag}`;
+          resultTag.style.cssText = '';
+        } else {
+          resultTag.className = 'result-tag custom';
+          resultTag.style.cssText = `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`;
+        }
+        resultEl.classList.remove('hidden');
+        resultSubLine.classList.add('hidden');
+      }
       return;
     }
 
@@ -825,6 +975,9 @@
     subCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     drawMainWheel();
+    if (currentSubItems.length > 0 && !subWheelWrap.classList.contains('hidden')) {
+      drawSubWheel(currentSubItems);
+    }
   }
 
   window.addEventListener('resize', resizeCanvases);
@@ -842,6 +995,9 @@
     localStorage.setItem(THEME_STORAGE_KEY, next);
     // Redraw wheels so hub colors match theme
     drawMainWheel();
+    if (currentSubItems.length > 0 && !subWheelWrap.classList.contains('hidden')) {
+      drawSubWheel(currentSubItems);
+    }
   }
 
   function loadTheme() {
