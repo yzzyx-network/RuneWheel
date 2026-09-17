@@ -13,6 +13,8 @@
   --skilling-bg: rgba(63, 185, 80, 0.15);
   --other: #58a6ff;
   --other-bg: rgba(88, 166, 255, 0.15);
+  --afk: #ffa657;
+  --afk-bg: rgba(255, 166, 87, 0.15);
   --sub: #d2a8ff;
   --sub-bg: rgba(210, 168, 255, 0.15);
   --danger: #f85149;
@@ -251,6 +253,17 @@ body {
   border: 1px solid var(--other);
 }
 
+.result-tag.afk {
+  background: var(--afk-bg);
+  color: var(--afk);
+  border: 1px solid var(--afk);
+}
+
+/* Custom tags use inline styles via data attributes; fallback: */
+.result-tag.custom {
+  border: 1px solid currentColor;
+}
+
 .result-sub-line {
   margin-top: 0.55rem;
   display: flex;
@@ -335,6 +348,35 @@ body {
 
 .add-form select {
   cursor: pointer;
+}
+
+.tag-row {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.tag-row select {
+  flex: 1;
+}
+
+.new-tag-btn {
+  width: 42px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.new-tag-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(240, 180, 41, 0.1);
 }
 
 .add-btn {
@@ -436,6 +478,7 @@ body {
 .option-item .tag-dot.boss { background: var(--boss); }
 .option-item .tag-dot.skilling { background: var(--skilling); }
 .option-item .tag-dot.other { background: var(--other); }
+.option-item .tag-dot.afk { background: var(--afk); }
 
 .option-item .name {
   flex: 1;
@@ -468,6 +511,11 @@ body {
 .option-item .tag-label.other {
   background: var(--other-bg);
   color: var(--other);
+}
+
+.option-item .tag-label.afk {
+  background: var(--afk-bg);
+  color: var(--afk);
 }
 
 .option-item .sub-count {
@@ -702,4 +750,96 @@ body {
   .wheels-row {
     gap: 1.5rem;
   }
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-card {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.modal-card input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.7rem 0.85rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  margin-bottom: 1rem;
+}
+
+.modal-card input:focus {
+  border-color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+.modal-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.modal-cancel:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.modal-confirm {
+  background: var(--accent);
+  border: none;
+  color: #1a1a1a;
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-confirm:hover {
+  filter: brightness(1.1);
 }

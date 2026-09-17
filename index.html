@@ -52,30 +52,42 @@
         
         <form id="addForm" class="add-form">
           <input type="text" id="optionName" placeholder="Activity name..." required maxlength="40" autocomplete="off">
-          <select id="optionTag" required>
-            <option value="" disabled selected>Tag...</option>
-            <option value="boss">Boss</option>
-            <option value="skilling">Skilling</option>
-            <option value="other">Other</option>
-          </select>
+          <div class="tag-row">
+            <select id="optionTag" required>
+              <!-- filled by JS -->
+            </select>
+            <button type="button" id="newTagBtn" class="new-tag-btn" title="Create custom tag">+</button>
+          </div>
           <button type="submit" class="add-btn">Add</button>
         </form>
 
-        <div class="filter-bar">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="boss">Boss</button>
-          <button class="filter-btn" data-filter="skilling">Skilling</button>
-          <button class="filter-btn" data-filter="other">Other</button>
+        <div id="filterBar" class="filter-bar">
+          <!-- filled by JS -->
         </div>
 
         <ul id="optionsList" class="options-list"></ul>
 
         <div class="sidepanel-footer">
           <button id="clearBtn" class="clear-btn">Clear All</button>
-          <p class="hint">Options &amp; sub-options saved locally</p>
+          <p class="hint">Options, tags &amp; subs saved locally</p>
         </div>
       </aside>
     </main>
+  </div>
+
+  <!-- Create tag modal -->
+  <div id="tagModal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <h3>Create custom tag</h3>
+      <form id="tagForm">
+        <input type="text" id="newTagName" placeholder="Tag name..." required maxlength="20" autocomplete="off">
+        <div class="modal-actions">
+          <button type="button" class="modal-cancel" data-close>Cancel</button>
+          <button type="submit" class="modal-confirm">Create</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="app.js"></script>
