@@ -9,11 +9,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body data-theme="osrs">
   <div class="app">
     <header class="header">
+      <button type="button" id="themeToggle" class="theme-toggle" title="Switch between OSRS and Modern theme" aria-label="Switch theme">
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb"></span>
+        </span>
+        <span class="theme-toggle-text" id="themeToggleText">OSRS</span>
+      </button>
       <h1>RuneScape Activity Wheel</h1>
-      <p class="subtitle">Spin to decide your next adventure</p>
+      <p class="subtitle">Spin the wheel of Gielinor — choose your next adventure</p>
     </header>
 
     <main class="main">

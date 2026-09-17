@@ -1,6 +1,7 @@
 (() => {
   const STORAGE_KEY = 'rs-activity-wheel-options-v3';
   const TAGS_STORAGE_KEY = 'rs-activity-wheel-custom-tags-v3';
+  const THEME_STORAGE_KEY = 'rs-activity-wheel-theme';
 
   // Built-in tags (always available)
   const BUILTIN_TAGS = {
@@ -244,14 +245,15 @@
     ctx.clearRect(0, 0, cssSize, cssSize);
 
     if (items.length === 0) {
+      const isOsrs = document.body.getAttribute('data-theme') !== 'modern';
       ctx.beginPath();
       ctx.arc(center, center, radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#21262d';
+      ctx.fillStyle = isOsrs ? '#2e2c29' : '#21262d';
       ctx.fill();
-      ctx.strokeStyle = '#30363d';
+      ctx.strokeStyle = isOsrs ? '#5a5248' : '#30363d';
       ctx.lineWidth = isSub ? 3 : 4;
       ctx.stroke();
-      ctx.fillStyle = '#8b949e';
+      ctx.fillStyle = isOsrs ? '#8a7d68' : '#8b949e';
       ctx.font = `${isSub ? 13 : 16}px Roboto, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -296,18 +298,27 @@
       ctx.restore();
     });
 
+    const isOsrs = document.body.getAttribute('data-theme') !== 'modern';
+    const hubFill = isOsrs ? '#1a1612' : '#0d1117';
+    const hubStroke = isSub
+      ? (isOsrs ? '#c080ff' : '#d2a8ff')
+      : (isOsrs ? '#e6a519' : '#f0b429');
+    const hubDot = isSub
+      ? (isOsrs ? '#c080ff' : '#d2a8ff')
+      : (isOsrs ? '#ffcf3f' : '#f0b429');
+
     const hubR = isSub ? 18 : 26;
     ctx.beginPath();
     ctx.arc(center, center, hubR, 0, Math.PI * 2);
-    ctx.fillStyle = '#0d1117';
+    ctx.fillStyle = hubFill;
     ctx.fill();
-    ctx.strokeStyle = isSub ? '#d2a8ff' : '#f0b429';
+    ctx.strokeStyle = hubStroke;
     ctx.lineWidth = isSub ? 2.5 : 3;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(center, center, isSub ? 5 : 7, 0, Math.PI * 2);
-    ctx.fillStyle = isSub ? '#d2a8ff' : '#f0b429';
+    ctx.fillStyle = hubDot;
     ctx.fill();
   }
 
@@ -367,11 +378,11 @@
     );
 
     filterBar.innerHTML =
-      `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all">All</button>` +
+      `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all" title="All">All</button>` +
       visible
         .map(
           (t) =>
-            `<button class="filter-btn ${currentFilter === t.id ? 'active' : ''}" data-filter="${t.id}" style="${
+            `<button class="filter-btn ${currentFilter === t.id ? 'active' : ''}" data-filter="${t.id}" title="${escapeHtml(t.label)}" style="${
               currentFilter === t.id
                 ? `background:${t.color};border-color:${t.color};color:#1a1a1a`
                 : ''
@@ -818,7 +829,38 @@
 
   window.addEventListener('resize', resizeCanvases);
 
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeToggleText = document.getElementById('themeToggleText');
+
+  function applyTheme(theme) {
+    const next = theme === 'modern' ? 'modern' : 'osrs';
+    document.body.setAttribute('data-theme', next);
+    if (themeToggleText) {
+      themeToggleText.textContent = next === 'modern' ? 'Modern' : 'OSRS';
+    }
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+    // Redraw wheels so hub colors match theme
+    drawMainWheel();
+  }
+
+  function loadTheme() {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved === 'modern' || saved === 'osrs') return saved;
+    } catch (_) {}
+    return 'osrs';
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme') || 'osrs';
+      applyTheme(current === 'osrs' ? 'modern' : 'osrs');
+    });
+  }
+
   // Init
+  applyTheme(loadTheme());
   resizeCanvases();
   updateUI();
 })();
