@@ -61,8 +61,11 @@
           <button type="submit" class="add-btn">Add</button>
         </form>
 
-        <div id="filterBar" class="filter-bar">
-          <!-- filled by JS -->
+        <div class="filter-row">
+          <div id="filterBar" class="filter-bar">
+            <!-- filled by JS -->
+          </div>
+          <button type="button" id="manageTagsBtn" class="manage-tags-btn" title="Manage tags">⚙</button>
         </div>
 
         <ul id="optionsList" class="options-list"></ul>
@@ -87,6 +90,19 @@
           <button type="submit" class="modal-confirm">Create</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Manage tags modal -->
+  <div id="manageTagsModal" class="modal hidden">
+    <div class="modal-backdrop" data-close-manage></div>
+    <div class="modal-card modal-card-wide">
+      <h3>Manage tags</h3>
+      <p class="modal-hint">Built-in tags cannot be deleted. Deleting a custom tag reassigns its activities to <strong>Other</strong>.</p>
+      <ul id="manageTagsList" class="manage-tags-list"></ul>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-close-manage>Close</button>
+      </div>
     </div>
   </div>
 

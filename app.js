@@ -95,6 +95,9 @@
   const tagModal = document.getElementById('tagModal');
   const tagForm = document.getElementById('tagForm');
   const newTagNameInput = document.getElementById('newTagName');
+  const manageTagsBtn = document.getElementById('manageTagsBtn');
+  const manageTagsModal = document.getElementById('manageTagsModal');
+  const manageTagsList = document.getElementById('manageTagsList');
 
   // ---------- Storage ----------
   function loadOptions() {
@@ -201,6 +204,29 @@
     customTags.push({ id, label: clean, color });
     saveCustomTags();
     return id;
+  }
+
+  function deleteCustomTag(tagId) {
+    if (BUILTIN_TAGS[tagId]) return false; // cannot delete built-ins
+
+    const count = options.filter((o) => o.tag === tagId).length;
+    if (count > 0) {
+      const ok = confirm(
+        `"${getTagLabel(tagId)}" is used by ${count} activit${count === 1 ? 'y' : 'ies'}.\n\nDelete the tag and reassign those activities to Other?`
+      );
+      if (!ok) return false;
+      options.forEach((o) => {
+        if (o.tag === tagId) o.tag = 'other';
+      });
+      saveOptions();
+    }
+
+    customTags = customTags.filter((t) => t.id !== tagId);
+    saveCustomTags();
+
+    if (currentFilter === tagId) currentFilter = 'all';
+    if (optionTagSelect.value === tagId) optionTagSelect.value = '';
+    return true;
   }
 
   // ---------- Filter / list helpers ----------
@@ -665,7 +691,7 @@
     updateUI();
   });
 
-  // Custom tag modal
+  // Create tag modal
   function openTagModal() {
     tagModal.classList.remove('hidden');
     newTagNameInput.value = '';
@@ -689,14 +715,82 @@
     const id = createCustomTag(name);
     closeTagModal();
     updateUI();
-    // Select the new/existing tag
     optionTagSelect.value = id;
   });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !tagModal.classList.contains('hidden')) {
-      closeTagModal();
+  // Manage tags modal
+  function renderManageTagsList() {
+    const builtins = Object.values(BUILTIN_TAGS);
+    const customs = customTags;
+
+    if (builtins.length === 0 && customs.length === 0) {
+      manageTagsList.innerHTML = `<li class="manage-tags-empty">No tags</li>`;
+      return;
     }
+
+    let html = '';
+
+    builtins.forEach((t) => {
+      const count = options.filter((o) => o.tag === t.id).length;
+      html += `
+        <li class="manage-tag-item">
+          <span class="manage-tag-dot" style="background:${t.color}"></span>
+          <span class="manage-tag-name">${escapeHtml(t.label)}</span>
+          <span class="manage-tag-meta">${count} · built-in</span>
+          <button class="manage-tag-delete" disabled title="Built-in tags cannot be deleted">Delete</button>
+        </li>
+      `;
+    });
+
+    if (customs.length === 0) {
+      html += `<li class="manage-tags-empty" style="padding:0.8rem 0.5rem">No custom tags yet. Create one with the + button.</li>`;
+    } else {
+      customs.forEach((t) => {
+        const count = options.filter((o) => o.tag === t.id).length;
+        html += `
+          <li class="manage-tag-item">
+            <span class="manage-tag-dot" style="background:${t.color}"></span>
+            <span class="manage-tag-name">${escapeHtml(t.label)}</span>
+            <span class="manage-tag-meta">${count} activit${count === 1 ? 'y' : 'ies'}</span>
+            <button class="manage-tag-delete" data-delete-tag="${t.id}" title="Delete tag">Delete</button>
+          </li>
+        `;
+      });
+    }
+
+    manageTagsList.innerHTML = html;
+  }
+
+  function openManageTagsModal() {
+    renderManageTagsList();
+    manageTagsModal.classList.remove('hidden');
+  }
+
+  function closeManageTagsModal() {
+    manageTagsModal.classList.add('hidden');
+  }
+
+  manageTagsBtn.addEventListener('click', openManageTagsModal);
+
+  manageTagsModal.addEventListener('click', (e) => {
+    if (e.target.hasAttribute('data-close-manage')) {
+      closeManageTagsModal();
+      return;
+    }
+    const delBtn = e.target.closest('[data-delete-tag]');
+    if (delBtn) {
+      const tagId = delBtn.dataset.deleteTag;
+      if (deleteCustomTag(tagId)) {
+        renderManageTagsList();
+        updateUI();
+      }
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!tagModal.classList.contains('hidden')) closeTagModal();
+    if (!manageTagsModal.classList.contains('hidden')) closeManageTagsModal();
   });
 
   // ---------- Canvas sizing ----------

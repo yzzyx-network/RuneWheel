@@ -395,15 +395,22 @@ body {
   filter: brightness(1.1);
 }
 
+.filter-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
 .filter-bar {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  flex: 1;
 }
 
 .filter-btn {
   flex: 1;
-  min-width: 60px;
+  min-width: 55px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -424,6 +431,26 @@ body {
   background: var(--accent);
   border-color: var(--accent);
   color: #1a1a1a;
+}
+
+.manage-tags-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.manage-tags-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(240, 180, 41, 0.1);
 }
 
 .options-list {
@@ -662,7 +689,7 @@ body {
 
 .sidepanel h2,
 .add-form,
-.filter-bar,
+.filter-row,
 .sidepanel-footer {
   flex-shrink: 0;
 }
@@ -842,4 +869,84 @@ body {
 
 .modal-confirm:hover {
   filter: brightness(1.1);
+}
+
+.modal-card-wide {
+  max-width: 400px;
+}
+
+.modal-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.manage-tags-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.manage-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+}
+
+.manage-tag-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.manage-tag-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.manage-tag-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.manage-tag-delete {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  transition: all 0.15s;
+}
+
+.manage-tag-delete:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.manage-tag-delete:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.manage-tags-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1.5rem 0.5rem;
 }
