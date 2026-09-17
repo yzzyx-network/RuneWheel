@@ -114,6 +114,7 @@
           return parsed.map((o) => ({
             ...o,
             subs: Array.isArray(o.subs) ? o.subs : [],
+            enabled: o.enabled !== false,
           }));
         }
       }
@@ -122,6 +123,7 @@
       ...o,
       id: o.id || crypto.randomUUID(),
       subs: (o.subs || []).map((s) => ({ ...s, id: s.id || crypto.randomUUID() })),
+      enabled: true,
     }));
   }
 
@@ -260,12 +262,22 @@
     });
   }
 
+  /** Options matching current tag filters (includes disabled). */
+  function getTagScopedOptions() {
+    if (activeFilters.size === 0) return options;
+    return options.filter((o) => activeFilters.has(o.tag));
+  }
+
+  /** List options: tag filter only (includes hidden, so they can be un-hidden). */
+  function getListOptions() {
+    return sortOptions(getTagScopedOptions());
+  }
+
+  /** Wheel options: tag filter AND enabled. */
   function getFilteredOptions() {
-    let list = options;
-    if (activeFilters.size > 0) {
-      list = options.filter((o) => activeFilters.has(o.tag));
-    }
-    return sortOptions(list);
+    return sortOptions(
+      getTagScopedOptions().filter((o) => o.enabled !== false)
+    );
   }
 
   // ---------- Drawing ----------
@@ -436,7 +448,7 @@
   }
 
   function renderList() {
-    const filtered = getFilteredOptions();
+    const filtered = getListOptions();
     optionsList.innerHTML = '';
 
     if (filtered.length === 0) {
@@ -450,7 +462,8 @@
 
     filtered.forEach((opt) => {
       const li = document.createElement('li');
-      li.className = 'option-item';
+      const isEnabled = opt.enabled !== false;
+      li.className = 'option-item' + (isEnabled ? '' : ' is-hidden');
       li.dataset.id = opt.id;
 
       const subCount = (opt.subs || []).length;
@@ -458,6 +471,8 @@
       const badge = tagBadgeStyle(opt.tag);
       const color = getTagColor(opt.tag);
       const label = getTagLabel(opt.tag);
+      const visTitle = isEnabled ? 'Hide from wheel' : 'Show on wheel';
+      const visIcon = '👁';
 
       li.innerHTML = `
         <div class="option-row">
@@ -467,7 +482,8 @@
           <span class="name" title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</span>
           ${subCount > 0 ? `<span class="sub-count">${subCount}</span>` : ''}
           <span class="tag-label ${badge.className}" style="${badge.style}">${escapeHtml(label)}</span>
-          ${subCount > 0 ? `<button class="load-sub-btn" title="Load sub-wheel" data-action="load-sub" data-id="${opt.id}">🎡</button>` : ''}
+          ${subCount > 0 && isEnabled ? `<button class="load-sub-btn" title="Load sub-wheel" data-action="load-sub" data-id="${opt.id}">🎡</button>` : ''}
+          <button class="visibility-btn ${isEnabled ? '' : 'is-off'}" title="${visTitle}" data-action="toggle-visibility" data-id="${opt.id}">${visIcon}</button>
           <button class="expand-btn ${isOpen ? 'open' : ''}" title="Sub-options" data-action="expand" data-id="${opt.id}">
             ${isOpen ? '▾' : '▸'}
           </button>
@@ -515,11 +531,26 @@
     return div.innerHTML;
   }
 
+  function updateToggleAllBtn() {
+    const btn = document.getElementById('toggleAllBtn');
+    if (!btn) return;
+    const scoped = getTagScopedOptions();
+    if (scoped.length === 0) {
+      btn.disabled = true;
+      btn.textContent = 'Disable all';
+      return;
+    }
+    btn.disabled = false;
+    const allEnabled = scoped.every((o) => o.enabled !== false);
+    btn.textContent = allEnabled ? 'Disable all' : 'Enable all';
+  }
+
   function updateUI() {
     renderTagSelect(optionTagSelect.value || '');
     renderFilterBar();
     drawMainWheel();
     renderList();
+    updateToggleAllBtn();
     spinBtn.disabled = getFilteredOptions().length === 0 || isSpinning;
   }
 
@@ -776,6 +807,7 @@
       name,
       tag,
       subs: [],
+      enabled: true,
     });
     saveOptions();
     optionNameInput.value = '';
@@ -802,6 +834,16 @@
     if (action === 'expand') {
       expandedId = expandedId === id ? null : id;
       renderList();
+      return;
+    }
+
+    if (action === 'toggle-visibility') {
+      const opt = options.find((o) => o.id === id);
+      if (opt) {
+        opt.enabled = opt.enabled === false;
+        saveOptions();
+        updateUI();
+      }
       return;
     }
 
@@ -872,6 +914,21 @@
     subWheelWrap.classList.add('hidden');
     updateUI();
   });
+
+  const toggleAllBtn = document.getElementById('toggleAllBtn');
+  if (toggleAllBtn) {
+    toggleAllBtn.addEventListener('click', () => {
+      const scoped = getTagScopedOptions();
+      if (scoped.length === 0) return;
+      const allEnabled = scoped.every((o) => o.enabled !== false);
+      const next = !allEnabled; // only disable when everything is on; otherwise enable all
+      scoped.forEach((o) => {
+        o.enabled = next;
+      });
+      saveOptions();
+      updateUI();
+    });
+  }
 
   filterBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.filter-btn');

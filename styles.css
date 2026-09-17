@@ -943,6 +943,80 @@ body[data-theme="modern"] .spin-sub-btn:active:not(:disabled) {
   align-items: center;
 }
 
+.toggle-all-btn {
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 0.4rem 1rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  font-weight: 600;
+  box-shadow: var(--bevel-btn);
+  margin-bottom: 0.35rem;
+}
+
+.toggle-all-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-bright, var(--accent));
+}
+
+.toggle-all-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+body[data-theme="modern"] .toggle-all-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dim);
+}
+
+body[data-theme="modern"] .toggle-all-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.option-item.is-hidden {
+  opacity: 0.45;
+  filter: grayscale(0.55);
+}
+
+.option-item.is-hidden .name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn.is-off {
+  opacity: 1;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn {
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.15rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s, background 0.15s;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn:hover {
+  opacity: 1;
+  background: rgba(240, 180, 41, 0.12);
+  color: var(--accent-bright, var(--accent));
+}
+
 .clear-btn {
   background: transparent;
   border: 1px solid var(--border);
