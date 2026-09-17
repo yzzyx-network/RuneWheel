@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RuneScape Activity Wheel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
 :root {
   /* OSRS-inspired palette */
@@ -1682,9 +1685,6 @@ body[data-theme="modern"] .wheel-label {
 }
 
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body data-theme="osrs">
   <div class="app">
@@ -2993,10 +2993,28 @@ body[data-theme="modern"] .wheel-label {
     });
   }
 
-  // Init
-  applyTheme(loadTheme());
-  resizeCanvases();
-  updateUI();
+  // Init — wait for webfonts so canvas text matches the UI
+  function boot() {
+    applyTheme(loadTheme());
+    resizeCanvases();
+    updateUI();
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    // Explicitly request the weights used on the wheel
+    Promise.all([
+      document.fonts.load('400 14px Roboto'),
+      document.fonts.load('700 14px Roboto'),
+      document.fonts.load('400 16px Roboto'),
+      document.fonts.load('700 16px Roboto'),
+    ])
+      .catch(() => {})
+      .then(() => document.fonts.ready)
+      .then(boot)
+      .catch(boot);
+  } else {
+    boot();
+  }
 })();
 
   </script>
