@@ -4,7 +4,7 @@ A polished, browser-based **spinning wheel** for picking your next RuneScape act
 
 No install, no backend. Open it in a browser and spin.
 
-> **Disclaimer:** Shamelessly vibecoded for personal use. Expect quirks, feel free to report bugs, it's been working great for me though!.
+> **Disclaimer:** Shamelessly vibecoded for personal use. Expect quirks, feel free to report bugs, it's been working great for me though!
 
 ---
 
