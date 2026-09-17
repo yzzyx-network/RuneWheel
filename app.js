@@ -68,7 +68,7 @@
   // State
   let options = loadOptions();
   let customTags = loadCustomTags(); // { id, label, color }
-  let currentFilter = 'all';
+  let activeFilters = new Set(); // empty = show all tags
   let isSpinning = false;
   let currentRotation = 0;
   let subRotation = 0;
@@ -229,15 +229,43 @@
     customTags = customTags.filter((t) => t.id !== tagId);
     saveCustomTags();
 
-    if (currentFilter === tagId) currentFilter = 'all';
+    activeFilters.delete(tagId);
     if (optionTagSelect.value === tagId) optionTagSelect.value = '';
     return true;
   }
 
   // ---------- Filter / list helpers ----------
+  const BUILTIN_TAG_ORDER = ['boss', 'skilling', 'other', 'afk'];
+
+  function sortOptions(list) {
+    return [...list].sort((a, b) => {
+      const aBuiltin = BUILTIN_TAG_ORDER.indexOf(a.tag);
+      const bBuiltin = BUILTIN_TAG_ORDER.indexOf(b.tag);
+      const aIsBuiltin = aBuiltin >= 0;
+      const bIsBuiltin = bBuiltin >= 0;
+
+      if (aIsBuiltin && bIsBuiltin && aBuiltin !== bBuiltin) {
+        return aBuiltin - bBuiltin;
+      }
+      if (aIsBuiltin !== bIsBuiltin) {
+        return aIsBuiltin ? -1 : 1;
+      }
+      // Both custom (or same builtin tag): sort by tag label, then name
+      if (a.tag !== b.tag) {
+        return getTagLabel(a.tag).localeCompare(getTagLabel(b.tag), undefined, {
+          sensitivity: 'base',
+        });
+      }
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
+  }
+
   function getFilteredOptions() {
-    if (currentFilter === 'all') return options;
-    return options.filter((o) => o.tag === currentFilter);
+    let list = options;
+    if (activeFilters.size > 0) {
+      list = options.filter((o) => activeFilters.has(o.tag));
+    }
+    return sortOptions(list);
   }
 
   // ---------- Drawing ----------
@@ -381,17 +409,18 @@
       (t) => BUILTIN_TAGS[t.id] || usedTagIds.has(t.id) || customTags.some((c) => c.id === t.id)
     );
 
+    const allActive = activeFilters.size === 0;
+
     filterBar.innerHTML =
-      `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all" title="All">All</button>` +
+      `<button class="filter-btn ${allActive ? 'active' : ''}" data-filter="all" title="Show all tags">All</button>` +
       visible
-        .map(
-          (t) =>
-            `<button class="filter-btn ${currentFilter === t.id ? 'active' : ''}" data-filter="${t.id}" title="${escapeHtml(t.label)}" style="${
-              currentFilter === t.id
-                ? `background:${t.color};border-color:${t.color};color:#1a1a1a`
-                : ''
-            }">${escapeHtml(t.label)}</button>`
-        )
+        .map((t) => {
+          const on = activeFilters.has(t.id);
+          const style = on
+            ? `background:${t.color};border-color:${t.color};color:#1a1a1a`
+            : '';
+          return `<button class="filter-btn ${on ? 'active' : ''}" data-filter="${t.id}" title="${escapeHtml(t.label)} (click to toggle)" style="${style}">${escapeHtml(t.label)}</button>`;
+        })
         .join('');
   }
 
@@ -847,7 +876,16 @@
   filterBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
-    currentFilter = btn.dataset.filter;
+    const id = btn.dataset.filter;
+
+    if (id === 'all') {
+      activeFilters.clear();
+    } else if (activeFilters.has(id)) {
+      activeFilters.delete(id);
+    } else {
+      activeFilters.add(id);
+    }
+
     expandedId = null;
     updateUI();
   });
