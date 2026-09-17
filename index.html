@@ -12,6 +12,7 @@
 <body data-theme="osrs">
   <div class="app">
     <header class="header">
+      <button type="button" id="helpBtn" class="help-btn" title="Help" aria-label="Open help">?</button>
       <button type="button" id="themeToggle" class="theme-toggle" title="Switch between OSRS and Modern theme" aria-label="Switch theme">
         <span class="theme-toggle-track">
           <span class="theme-toggle-thumb"></span>
@@ -112,6 +113,65 @@
       <ul id="manageTagsList" class="manage-tags-list"></ul>
       <div class="modal-actions">
         <button type="button" class="modal-cancel" data-close-manage>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-backdrop" data-close-help></div>
+    <div class="modal-card modal-card-help">
+      <h3>How to use</h3>
+      <div class="help-body">
+        <section class="help-section">
+          <h4>Main wheel</h4>
+          <p>Press <strong>SPIN</strong> to randomly pick an activity from the options currently on the wheel. The result is whatever lands under the pointer at the top.</p>
+        </section>
+        <section class="help-section">
+          <h4>Sub-wheels</h4>
+          <p>Some activities have sub-options (e.g. Runecrafting → specific runes). After the main wheel lands on one of those, a smaller <strong>sub-wheel</strong> appears and spins automatically.</p>
+          <ul>
+            <li>Click <strong>🎡</strong> on an activity to load its sub-wheel without spinning the main wheel.</li>
+            <li>Press <strong>SPIN SUB</strong> to spin the sub-wheel on its own.</li>
+            <li>Use <strong>▸</strong> on an activity to expand it and add or remove sub-options.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Adding activities</h4>
+          <p>Type a name, pick a tag, and click <strong>Add</strong>. Options are saved in your browser (local storage).</p>
+        </section>
+        <section class="help-section">
+          <h4>Tags &amp; filters</h4>
+          <ul>
+            <li>Built-in tags: <strong>Boss</strong>, <strong>Skilling</strong>, <strong>Other</strong>, <strong>AFK</strong>.</li>
+            <li>Click <strong>+</strong> next to the tag dropdown to create a custom tag.</li>
+            <li>Click the <strong>⚙</strong> gear to manage or delete custom tags.</li>
+            <li>Filter buttons can be multi-selected (e.g. Boss + Skilling). <strong>All</strong> clears the filter.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Show / hide activities</h4>
+          <ul>
+            <li>Click the <strong>👁</strong> eye on a row to hide that activity from the wheel (it stays in the list, greyed out).</li>
+            <li>Click the eye again to show it.</li>
+            <li><strong>Enable all</strong> / <strong>Disable all</strong> applies only to activities in the <em>current tag filter</em>.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Sorting</h4>
+          <p>The list is sorted by tag (Boss → Skilling → Other → AFK → custom), then alphabetically by name within each tag.</p>
+        </section>
+        <section class="help-section">
+          <h4>Theme</h4>
+          <p>Use the switch in the top-right to toggle between the <strong>OSRS</strong> (stone &amp; gold) theme and the <strong>Modern</strong> dark theme. Your choice is saved.</p>
+        </section>
+        <section class="help-section">
+          <h4>Clear all</h4>
+          <p>Removes every activity from the list. This cannot be undone (your tags remain).</p>
+        </section>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-close-help>Close</button>
       </div>
     </div>
   </div>

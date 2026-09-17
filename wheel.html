@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RuneScape Activity Wheel</title>
+  <style>
+:root {
+  /* OSRS-inspired palette */
+  --bg-dark: #1a1612;
+  --bg-panel: #2e2c29;
+  --bg-card: #3a3530;
+  --bg-input: #1e1b17;
+  --border: #5a5248;
+  --border-light: #7a7060;
+  --border-dark: #1a1612;
+  --text: #ffcf3f;
+  --text-bright: #ffffa0;
+  --text-muted: #c6b89a;
+  --text-dim: #8a7d68;
+  --accent: #e6a519;
+  --accent-bright: #ffcf3f;
+  --accent-dark: #b8860b;
+  --boss: #ff4444;
+  --boss-bg: rgba(255, 68, 68, 0.18);
+  --skilling: #44ff44;
+  --skilling-bg: rgba(68, 255, 68, 0.12);
+  --other: #44aaff;
+  --other-bg: rgba(68, 170, 255, 0.15);
+  --afk: #ff9040;
+  --afk-bg: rgba(255, 144, 64, 0.18);
+  --sub: #c080ff;
+  --sub-bg: rgba(192, 128, 255, 0.15);
+  --danger: #ff3333;
+  --radius: 3px;
+  --shadow: 0 4px 0 #0a0806, 0 8px 24px rgba(0, 0, 0, 0.55);
+  --bevel-light: inset 1px 1px 0 #6a6258, inset -1px -1px 0 #1a1612;
+  --bevel-btn: inset 1px 1px 0 #8a7e6a, inset -1px -1px 0 #2a2418;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', system-ui, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-muted);
+  min-height: 100vh;
+  /* Stone / dirt ground feel */
+  background-color: #1a1612;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(230, 165, 25, 0.08) 0%, transparent 55%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.03) 3px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.03) 3px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+  position: relative;
+  padding-top: 0.25rem;
+}
+
+.header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  color: var(--accent-bright);
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 0 12px rgba(255, 207, 63, 0.35),
+    2px 2px 0 #3a2a0a,
+    -1px -1px 0 #1a1000;
+}
+
+.help-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 2px solid var(--accent);
+  color: var(--accent-bright);
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  transition: filter 0.15s, box-shadow 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+.help-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px rgba(230, 165, 25, 0.35);
+}
+
+@media (max-width: 640px) {
+  .help-btn {
+    position: static;
+    margin: 0 auto 0.5rem;
+  }
+}
+
+body[data-theme="modern"] .help-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Roboto', system-ui, sans-serif;
+}
+
+.modal-card-help {
+  width: min(520px, 94vw);
+  max-height: min(80vh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.help-body {
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  margin: 0.25rem 0 0.75rem;
+  text-align: left;
+  flex: 1;
+  min-height: 0;
+}
+
+.help-section {
+  margin-bottom: 1rem;
+}
+
+.help-section:last-child {
+  margin-bottom: 0.25rem;
+}
+
+.help-section h4 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: var(--accent-bright, var(--accent));
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.03em;
+}
+
+.help-section p,
+.help-section li {
+  font-size: 0.88rem;
+  color: var(--text-muted, var(--text-dim));
+  line-height: 1.45;
+  margin: 0 0 0.35rem;
+}
+
+.help-section ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.help-section li {
+  margin-bottom: 0.3rem;
+}
+
+.help-section strong {
+  color: var(--text, var(--accent-bright));
+  font-weight: 600;
+}
+
+body[data-theme="modern"] .help-section h4 {
+  font-family: 'Roboto', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 0.4rem 0.7rem 0.4rem 0.45rem;
+  cursor: pointer;
+  color: var(--accent-bright);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: filter 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.theme-toggle:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px rgba(230, 165, 25, 0.35);
+}
+
+.theme-toggle-track {
+  width: 36px;
+  height: 18px;
+  border-radius: 10px;
+  background: #1a1612;
+  border: 1px solid var(--border-light);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-bright);
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme="modern"] .theme-toggle-thumb {
+  transform: translateX(16px);
+}
+
+body[data-theme="modern"] .theme-toggle-track {
+  background: var(--accent);
+}
+
+.theme-toggle-text {
+  min-width: 3.2rem;
+  text-align: left;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .theme-toggle {
+    position: static;
+    margin: 0 auto 0.75rem;
+  }
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* Wheels */
+.wheel-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.35rem;
+}
+
+.wheels-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.wheel-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wheel-container.main-wheel {
+  width: 420px;
+  height: 420px;
+}
+
+.wheel-container.sub-wheel {
+  width: 260px;
+  height: 260px;
+}
+
+.wheel-container.sub-wheel.hidden {
+  display: none;
+}
+
+#wheelCanvas {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 4px #5a4a30,
+    0 0 0 7px #c9a227,
+    0 0 0 10px #3a2e18,
+    0 6px 0 #0a0806,
+    0 0 40px rgba(230, 165, 25, 0.2);
+  background: var(--bg-card);
+  width: 100%;
+  height: 100%;
+}
+
+#subWheelCanvas {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 3px #4a3a55,
+    0 0 0 6px #a070d0,
+    0 0 0 8px #2a1a35,
+    0 4px 0 #0a0806,
+    0 0 28px rgba(192, 128, 255, 0.25);
+  background: var(--bg-card);
+  width: 100%;
+  height: 100%;
+}
+
+.pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 26px solid var(--accent-bright);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.7));
+  z-index: 10;
+}
+
+.sub-pointer {
+  border-left-width: 11px;
+  border-right-width: 11px;
+  border-top-width: 18px;
+  border-top-color: var(--sub);
+}
+
+.wheel-label {
+  position: absolute;
+  bottom: -1.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-shadow: 1px 1px 0 #000;
+}
+
+.spin-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 0.75rem 3rem;
+  background: linear-gradient(180deg, #e6b820 0%, #c48a10 45%, #a07008 100%);
+  color: #1a1000;
+  border: 2px solid #f0d060;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow:
+    inset 1px 1px 0 #ffe080,
+    inset -1px -1px 0 #6a4a00,
+    0 4px 0 #3a2a00,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s, filter 0.1s, box-shadow 0.1s;
+  margin-top: 1.1rem;
+  text-shadow: 0 1px 0 rgba(255, 255, 200, 0.4);
+}
+
+.spin-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 1px 1px 0 #ffe080,
+    inset -1px -1px 0 #6a4a00,
+    0 5px 0 #3a2a00,
+    0 8px 16px rgba(0, 0, 0, 0.45);
+}
+
+.spin-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    inset 1px 1px 0 #6a4a00,
+    inset -1px -1px 0 #ffe080,
+    0 2px 0 #3a2a00;
+}
+
+.spin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.spin-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 1.1rem;
+}
+
+.spin-btn {
+  margin-top: 0;
+}
+
+.spin-sub-btn {
+  background: linear-gradient(180deg, #b080e0 0%, #7030b0 45%, #502080 100%);
+  border-color: #d0a0ff;
+  color: #f8f0ff;
+  box-shadow:
+    inset 1px 1px 0 #e0c0ff,
+    inset -1px -1px 0 #402060,
+    0 4px 0 #2a1040,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  font-size: 1.1rem;
+  padding: 0.7rem 2.2rem;
+}
+
+.spin-sub-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow:
+    inset 1px 1px 0 #e0c0ff,
+    inset -1px -1px 0 #402060,
+    0 5px 0 #2a1040,
+    0 8px 16px rgba(0, 0, 0, 0.45);
+}
+
+.spin-sub-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    inset 1px 1px 0 #402060,
+    inset -1px -1px 0 #e0c0ff,
+    0 2px 0 #2a1040;
+}
+
+.spin-sub-btn.hidden {
+  display: none;
+}
+
+body[data-theme="modern"] .spin-sub-btn {
+  background: linear-gradient(180deg, #c080ff 0%, #9050d0 100%);
+  border: none;
+  border-radius: 50px;
+  color: #1a1a1a;
+  box-shadow: 0 4px 16px rgba(192, 128, 255, 0.4);
+  text-shadow: none;
+}
+
+body[data-theme="modern"] .spin-sub-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(192, 128, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+body[data-theme="modern"] .spin-sub-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(192, 128, 255, 0.4);
+}
+
+/* Result */
+.result {
+  text-align: center;
+  padding: 1rem 1.4rem;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius);
+  min-width: 280px;
+  box-shadow: var(--bevel-light), var(--shadow);
+  animation: fadeIn 0.4s ease;
+}
+
+.result.hidden {
+  display: none;
+}
+
+.result-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+}
+
+.result-main-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.result-text {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-shadow: 1px 1px 0 #000;
+}
+
+.result-tag {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.result-tag.boss {
+  background: var(--boss-bg);
+  color: var(--boss);
+  border: 1px solid var(--boss);
+}
+
+.result-tag.skilling {
+  background: var(--skilling-bg);
+  color: var(--skilling);
+  border: 1px solid var(--skilling);
+}
+
+.result-tag.other {
+  background: var(--other-bg);
+  color: var(--other);
+  border: 1px solid var(--other);
+}
+
+.result-tag.afk {
+  background: var(--afk-bg);
+  color: var(--afk);
+  border: 1px solid var(--afk);
+}
+
+.result-tag.custom {
+  border: 1px solid currentColor;
+}
+
+.result-sub-line {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.result-sub-line.hidden {
+  display: none;
+}
+
+.result-arrow {
+  color: var(--sub);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.result-sub-text {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--sub);
+  text-shadow: 1px 1px 0 #000;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Side panel — stone interface */
+.sidepanel {
+  background: linear-gradient(180deg, #3a3530 0%, #2e2c29 100%);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: var(--bevel-light), var(--shadow);
+  max-height: calc(100vh - 8rem);
+  height: calc(100vh - 8rem);
+  position: sticky;
+  top: 1.5rem;
+  overflow: hidden;
+}
+
+.sidepanel h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  color: var(--accent-bright);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.55rem;
+  text-shadow: 1px 1px 0 #000;
+  letter-spacing: 0.04em;
+}
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.add-form input,
+.add-form select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-dark);
+  border-radius: 2px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  outline: none;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.15s;
+}
+
+.add-form input:focus,
+.add-form select:focus {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.add-form input::placeholder {
+  color: var(--text-dim);
+}
+
+.add-form select {
+  cursor: pointer;
+}
+
+.tag-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.tag-row select {
+  flex: 1;
+}
+
+.new-tag-btn {
+  width: 40px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border-light);
+  border-radius: 2px;
+  color: var(--accent);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+  box-shadow: var(--bevel-btn);
+}
+
+.new-tag-btn:hover {
+  border-color: var(--accent-bright);
+  color: var(--accent-bright);
+  background: linear-gradient(180deg, #5a5040 0%, #3a3228 100%);
+}
+
+.add-btn {
+  background: linear-gradient(180deg, #c9a020 0%, #8a6810 100%);
+  color: #1a1000;
+  border: 1px solid #e0c040;
+  border-radius: 2px;
+  padding: 0.65rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: filter 0.15s;
+  box-shadow: inset 1px 1px 0 #e8d060, inset -1px -1px 0 #5a4000;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.06em;
+}
+
+.add-btn:hover {
+  filter: brightness(1.12);
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0; /* allow shrinking so children can ellipsis */
+  overflow: hidden;
+}
+
+.filter-btn {
+  flex: 0 1 auto;
+  width: auto;
+  max-width: 6.5rem; /* hard cap so long tag names always ellipsize */
+  min-width: 0;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.38rem 0.55rem;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--bevel-btn);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block; /* required for reliable ellipsis on <button> */
+  box-sizing: border-box;
+}
+
+.filter-btn:hover {
+  border-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+.filter-btn.active {
+  background: linear-gradient(180deg, #e6b820 0%, #a07810 100%);
+  border-color: #f0d060;
+  color: #1a1000;
+  box-shadow: inset 1px 1px 0 #ffe080, inset -1px -1px 0 #6a4a00;
+}
+
+.manage-tags-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+  box-shadow: var(--bevel-btn);
+}
+
+.manage-tags-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.options-list {
+  list-style: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-right: 4px;
+}
+
+.options-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.options-list::-webkit-scrollbar-track {
+  background: #1a1612;
+  border-radius: 2px;
+}
+
+.options-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c9a227 0%, #8a6810 100%);
+  border-radius: 2px;
+  border: 1px solid #5a4a20;
+}
+
+/* Option items */
+.option-item {
+  background: var(--bg-input);
+  border: 1px solid var(--border-dark);
+  border-radius: 2px;
+  overflow: hidden;
+  animation: fadeIn 0.25s ease;
+  flex-shrink: 0;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.6rem;
+}
+
+.option-item .tag-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.option-item .tag-dot.boss { background: var(--boss); }
+.option-item .tag-dot.skilling { background: var(--skilling); }
+.option-item .tag-dot.other { background: var(--other); }
+.option-item .tag-dot.afk { background: var(--afk); }
+
+.option-item .name {
+  flex: 1;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-item .tag-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.12rem 0.38rem;
+  border-radius: 2px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.option-item .tag-label.boss {
+  background: var(--boss-bg);
+  color: var(--boss);
+}
+
+.option-item .tag-label.skilling {
+  background: var(--skilling-bg);
+  color: var(--skilling);
+}
+
+.option-item .tag-label.other {
+  background: var(--other-bg);
+  color: var(--other);
+}
+
+.option-item .tag-label.afk {
+  background: var(--afk-bg);
+  color: var(--afk);
+}
+
+.option-item .sub-count {
+  font-size: 0.68rem;
+  color: var(--sub);
+  background: var(--sub-bg);
+  border: 1px solid rgba(192, 128, 255, 0.35);
+  padding: 0.08rem 0.35rem;
+  border-radius: 2px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.option-item .load-sub-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.15rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.option-item .load-sub-btn:hover {
+  opacity: 1;
+  background: var(--sub-bg);
+}
+
+.option-item .expand-btn,
+.option-item .remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0.15rem;
+  border-radius: 2px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.option-item .expand-btn:hover {
+  color: var(--sub);
+  background: var(--sub-bg);
+}
+
+.option-item .expand-btn.open {
+  color: var(--sub);
+}
+
+.option-item .remove-btn:hover {
+  color: var(--danger);
+  background: rgba(255, 51, 51, 0.15);
+}
+
+/* Sub-options */
+.subs-panel {
+  display: none;
+  border-top: 1px solid var(--border-dark);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.55rem 0.65rem 0.7rem;
+}
+
+.subs-panel.open {
+  display: block;
+}
+
+.subs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  padding: 0.28rem 0.4rem;
+  background: var(--bg-card);
+  border-radius: 2px;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+}
+
+.sub-item .sub-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sub-item .sub-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0.12rem;
+  border-radius: 2px;
+  line-height: 1;
+}
+
+.sub-item .sub-remove:hover {
+  color: var(--danger);
+}
+
+.subs-empty {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 0.45rem;
+  font-style: italic;
+}
+
+.sub-add-form {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.sub-add-form input {
+  flex: 1;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: 2px;
+  padding: 0.35rem 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.sub-add-form input:focus {
+  border-color: var(--sub);
+}
+
+.sub-add-form button {
+  background: linear-gradient(180deg, #a070d0 0%, #6030a0 100%);
+  color: #f8f0ff;
+  border: 1px solid #c090e0;
+  border-radius: 2px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sub-add-form button:hover {
+  filter: brightness(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  padding: 2rem 1rem;
+}
+
+.sidepanel h2,
+.add-form,
+.filter-row,
+.sidepanel-footer {
+  flex-shrink: 0;
+}
+
+.sidepanel-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.toggle-all-btn {
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 0.4rem 1rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  font-weight: 600;
+  box-shadow: var(--bevel-btn);
+  margin-bottom: 0.35rem;
+}
+
+.toggle-all-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-bright, var(--accent));
+}
+
+.toggle-all-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+body[data-theme="modern"] .toggle-all-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dim);
+}
+
+body[data-theme="modern"] .toggle-all-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.option-item.is-hidden {
+  opacity: 0.45;
+  filter: grayscale(0.55);
+}
+
+.option-item.is-hidden .name {
+  text-decoration: line-through;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn.is-off {
+  opacity: 1;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn {
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.15rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s, background 0.15s;
+  color: var(--text-dim);
+}
+
+.option-item .visibility-btn:hover {
+  opacity: 1;
+  background: rgba(240, 180, 41, 0.12);
+  color: var(--accent-bright, var(--accent));
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.4rem 1rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  font-weight: 600;
+}
+
+.clear-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(255, 51, 51, 0.1);
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.75);
+}
+
+.modal-card {
+  position: relative;
+  background: linear-gradient(180deg, #3a3530 0%, #2e2c29 100%);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.4rem;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: var(--bevel-light), var(--shadow);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card-wide {
+  max-width: 400px;
+}
+
+.modal-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--accent-bright);
+  margin-bottom: 0.9rem;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.modal-card input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-dark);
+  border-radius: 2px;
+  padding: 0.65rem 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  outline: none;
+  margin-bottom: 0.9rem;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.modal-card input:focus {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.modal-hint {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 0.9rem;
+  line-height: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.modal-cancel {
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.45rem 0.9rem;
+  border-radius: 2px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--bevel-btn);
+}
+
+.modal-cancel:hover {
+  border-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+.modal-confirm {
+  background: linear-gradient(180deg, #c9a020 0%, #8a6810 100%);
+  border: 1px solid #e0c040;
+  color: #1a1000;
+  padding: 0.45rem 1rem;
+  border-radius: 2px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 #e8d060, inset -1px -1px 0 #5a4000;
+}
+
+.modal-confirm:hover {
+  filter: brightness(1.1);
+}
+
+.manage-tags-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 0.9rem;
+}
+
+.manage-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-dark);
+  border-radius: 2px;
+  padding: 0.5rem 0.7rem;
+}
+
+.manage-tag-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.manage-tag-name {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.manage-tag-meta {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.manage-tag-delete {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.22rem 0.45rem;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+
+.manage-tag-delete:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(255, 51, 51, 0.1);
+}
+
+.manage-tag-delete:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.manage-tags-empty {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  padding: 1.4rem 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .wheel-container.main-wheel {
+    width: 340px;
+    height: 340px;
+  }
+
+  .wheel-container.sub-wheel {
+    width: 220px;
+    height: 220px;
+  }
+
+  .sidepanel {
+    position: static;
+    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .options-list {
+    max-height: 360px;
+    min-height: 120px;
+  }
+
+  .header h1 {
+    font-size: 1.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wheel-container.main-wheel {
+    width: 280px;
+    height: 280px;
+  }
+
+  .wheel-container.sub-wheel {
+    width: 180px;
+    height: 180px;
+  }
+
+  .app {
+    padding: 1rem;
+  }
+
+  .wheels-row {
+    gap: 1.5rem;
+  }
+}
+
+/* ============================================================
+   Modern theme (previous dark UI)
+   ============================================================ */
+body[data-theme="modern"] {
+  --bg-dark: #0d1117;
+  --bg-panel: #161b22;
+  --bg-card: #21262d;
+  --bg-input: #0d1117;
+  --border: #30363d;
+  --border-light: #484f58;
+  --border-dark: #21262d;
+  --text: #e6edf3;
+  --text-bright: #f0f6fc;
+  --text-muted: #e6edf3;
+  --text-dim: #8b949e;
+  --accent: #f0b429;
+  --accent-bright: #f0b429;
+  --accent-dark: #d4a017;
+  --boss: #e5534b;
+  --boss-bg: rgba(229, 83, 75, 0.15);
+  --skilling: #3fb950;
+  --skilling-bg: rgba(63, 185, 80, 0.15);
+  --other: #58a6ff;
+  --other-bg: rgba(88, 166, 255, 0.15);
+  --afk: #ffa657;
+  --afk-bg: rgba(255, 166, 87, 0.15);
+  --sub: #d2a8ff;
+  --sub-bg: rgba(210, 168, 255, 0.15);
+  --danger: #f85149;
+  --radius: 10px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --bevel-light: none;
+  --bevel-btn: none;
+  background-color: #0d1117;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(240, 180, 41, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(88, 166, 255, 0.05) 0%, transparent 50%);
+  color: var(--text-muted);
+}
+
+body[data-theme="modern"] .header h1 {
+  text-shadow: 0 0 20px rgba(240, 180, 41, 0.3);
+  letter-spacing: 0.04em;
+}
+
+body[data-theme="modern"] .subtitle {
+  font-style: normal;
+}
+
+body[data-theme="modern"] #wheelCanvas {
+  box-shadow: var(--shadow), 0 0 0 5px var(--border), 0 0 36px rgba(240, 180, 41, 0.15);
+  border-radius: 50%;
+}
+
+body[data-theme="modern"] #subWheelCanvas {
+  box-shadow: var(--shadow), 0 0 0 4px var(--border), 0 0 24px rgba(210, 168, 255, 0.2);
+}
+
+body[data-theme="modern"] .pointer {
+  border-top-color: var(--accent);
+}
+
+body[data-theme="modern"] .spin-btn {
+  background: linear-gradient(180deg, var(--accent) 0%, #d4a017 100%);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 4px 16px rgba(240, 180, 41, 0.4);
+  text-shadow: none;
+  letter-spacing: 0.12em;
+}
+
+body[data-theme="modern"] .spin-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(240, 180, 41, 0.5);
+}
+
+body[data-theme="modern"] .spin-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(240, 180, 41, 0.4);
+}
+
+body[data-theme="modern"] .result {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+  background: var(--bg-panel);
+}
+
+body[data-theme="modern"] .result-text {
+  text-shadow: none;
+  color: var(--text);
+}
+
+body[data-theme="modern"] .result-sub-text {
+  text-shadow: none;
+}
+
+body[data-theme="modern"] .result-tag {
+  border-radius: 20px;
+}
+
+body[data-theme="modern"] .sidepanel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="modern"] .sidepanel h2 {
+  text-shadow: none;
+  color: var(--accent);
+}
+
+body[data-theme="modern"] .add-form input,
+body[data-theme="modern"] .add-form select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text);
+}
+
+body[data-theme="modern"] .add-form input:focus,
+body[data-theme="modern"] .add-form select:focus {
+  border-color: var(--accent);
+}
+
+body[data-theme="modern"] .new-tag-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dim);
+}
+
+body[data-theme="modern"] .new-tag-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(240, 180, 41, 0.1);
+}
+
+body[data-theme="modern"] .add-btn {
+  background: var(--accent);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: 'Roboto', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+body[data-theme="modern"] .filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dim);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+body[data-theme="modern"] .filter-btn:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+body[data-theme="modern"] .filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a1a1a;
+  box-shadow: none;
+}
+
+body[data-theme="modern"] .manage-tags-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+body[data-theme="modern"] .manage-tags-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+body[data-theme="modern"] .option-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+body[data-theme="modern"] .option-item .name {
+  color: var(--text);
+}
+
+body[data-theme="modern"] .option-item .tag-label {
+  border-radius: 4px;
+}
+
+body[data-theme="modern"] .subs-panel {
+  background: rgba(0, 0, 0, 0.2);
+  border-top-color: var(--border);
+}
+
+body[data-theme="modern"] .sub-item {
+  background: var(--bg-panel);
+  border-radius: 5px;
+  color: var(--text);
+}
+
+body[data-theme="modern"] .sub-add-form input {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+}
+
+body[data-theme="modern"] .sub-add-form button {
+  background: var(--sub);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 5px;
+}
+
+body[data-theme="modern"] .clear-btn {
+  border-radius: 6px;
+}
+
+body[data-theme="modern"] .options-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: none;
+  border-radius: 3px;
+}
+
+body[data-theme="modern"] .options-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body[data-theme="modern"] .modal-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+body[data-theme="modern"] .modal-card h3 {
+  text-shadow: none;
+  color: var(--accent);
+}
+
+body[data-theme="modern"] .modal-card input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text);
+}
+
+body[data-theme="modern"] .modal-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+body[data-theme="modern"] .modal-confirm {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+body[data-theme="modern"] .manage-tag-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+body[data-theme="modern"] .manage-tag-name {
+  color: var(--text);
+}
+
+body[data-theme="modern"] .theme-toggle {
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme="modern"] .wheel-label {
+  color: var(--text-dim);
+  text-shadow: none;
+}
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="osrs">
+  <div class="app">
+    <header class="header">
+      <button type="button" id="helpBtn" class="help-btn" title="Help" aria-label="Open help">?</button>
+      <button type="button" id="themeToggle" class="theme-toggle" title="Switch between OSRS and Modern theme" aria-label="Switch theme">
+        <span class="theme-toggle-track">
+          <span class="theme-toggle-thumb"></span>
+        </span>
+        <span class="theme-toggle-text" id="themeToggleText">OSRS</span>
+      </button>
+      <h1>RuneScape Activity Wheel</h1>
+      <p class="subtitle">Spin the wheel of Gielinor — choose your next adventure</p>
+    </header>
+
+    <main class="main">
+      <section class="wheel-section">
+        <div class="wheels-row">
+          <div class="wheel-container main-wheel">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="pointer"></div>
+            <span class="wheel-label">Main</span>
+          </div>
+
+          <div id="subWheelWrap" class="wheel-container sub-wheel hidden">
+            <canvas id="subWheelCanvas" width="280" height="280"></canvas>
+            <div class="pointer sub-pointer"></div>
+            <span class="wheel-label" id="subWheelLabel">Sub</span>
+          </div>
+        </div>
+
+        <div class="spin-row">
+          <button id="spinBtn" class="spin-btn">SPIN</button>
+          <button id="spinSubBtn" class="spin-btn spin-sub-btn hidden">SPIN SUB</button>
+        </div>
+
+        <div id="result" class="result hidden">
+          <span class="result-label">Selected:</span>
+          <div class="result-main-line">
+            <span id="resultText" class="result-text"></span>
+            <span id="resultTag" class="result-tag"></span>
+          </div>
+          <div id="resultSubLine" class="result-sub-line hidden">
+            <span class="result-arrow">→</span>
+            <span id="resultSubText" class="result-sub-text"></span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidepanel">
+        <h2>Options</h2>
+        
+        <form id="addForm" class="add-form">
+          <input type="text" id="optionName" placeholder="Activity name..." required maxlength="40" autocomplete="off">
+          <div class="tag-row">
+            <select id="optionTag" required>
+              <!-- filled by JS -->
+            </select>
+            <button type="button" id="newTagBtn" class="new-tag-btn" title="Create custom tag">+</button>
+          </div>
+          <button type="submit" class="add-btn">Add</button>
+        </form>
+
+        <div class="filter-row">
+          <div id="filterBar" class="filter-bar">
+            <!-- filled by JS -->
+          </div>
+          <button type="button" id="manageTagsBtn" class="manage-tags-btn" title="Manage tags">⚙</button>
+        </div>
+
+        <ul id="optionsList" class="options-list"></ul>
+
+        <div class="sidepanel-footer">
+          <button type="button" id="toggleAllBtn" class="toggle-all-btn">Disable all</button>
+          <button id="clearBtn" class="clear-btn">Clear All</button>
+          <p class="hint">Options, tags &amp; subs saved locally</p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Create tag modal -->
+  <div id="tagModal" class="modal hidden">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <h3>Create custom tag</h3>
+      <form id="tagForm">
+        <input type="text" id="newTagName" placeholder="Tag name..." required maxlength="20" autocomplete="off">
+        <div class="modal-actions">
+          <button type="button" class="modal-cancel" data-close>Cancel</button>
+          <button type="submit" class="modal-confirm">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manage tags modal -->
+  <div id="manageTagsModal" class="modal hidden">
+    <div class="modal-backdrop" data-close-manage></div>
+    <div class="modal-card modal-card-wide">
+      <h3>Manage tags</h3>
+      <p class="modal-hint">Built-in tags cannot be deleted. Deleting a custom tag reassigns its activities to <strong>Other</strong>.</p>
+      <ul id="manageTagsList" class="manage-tags-list"></ul>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-close-manage>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-backdrop" data-close-help></div>
+    <div class="modal-card modal-card-help">
+      <h3>How to use</h3>
+      <div class="help-body">
+        <section class="help-section">
+          <h4>Main wheel</h4>
+          <p>Press <strong>SPIN</strong> to randomly pick an activity from the options currently on the wheel. The result is whatever lands under the pointer at the top.</p>
+        </section>
+        <section class="help-section">
+          <h4>Sub-wheels</h4>
+          <p>Some activities have sub-options (e.g. Runecrafting → specific runes). After the main wheel lands on one of those, a smaller <strong>sub-wheel</strong> appears and spins automatically.</p>
+          <ul>
+            <li>Click <strong>🎡</strong> on an activity to load its sub-wheel without spinning the main wheel.</li>
+            <li>Press <strong>SPIN SUB</strong> to spin the sub-wheel on its own.</li>
+            <li>Use <strong>▸</strong> on an activity to expand it and add or remove sub-options.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Adding activities</h4>
+          <p>Type a name, pick a tag, and click <strong>Add</strong>. Options are saved in your browser (local storage).</p>
+        </section>
+        <section class="help-section">
+          <h4>Tags &amp; filters</h4>
+          <ul>
+            <li>Built-in tags: <strong>Boss</strong>, <strong>Skilling</strong>, <strong>Other</strong>, <strong>AFK</strong>.</li>
+            <li>Click <strong>+</strong> next to the tag dropdown to create a custom tag.</li>
+            <li>Click the <strong>⚙</strong> gear to manage or delete custom tags.</li>
+            <li>Filter buttons can be multi-selected (e.g. Boss + Skilling). <strong>All</strong> clears the filter.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Show / hide activities</h4>
+          <ul>
+            <li>Click the <strong>👁</strong> eye on a row to hide that activity from the wheel (it stays in the list, greyed out).</li>
+            <li>Click the eye again to show it.</li>
+            <li><strong>Enable all</strong> / <strong>Disable all</strong> applies only to activities in the <em>current tag filter</em>.</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>Sorting</h4>
+          <p>The list is sorted by tag (Boss → Skilling → Other → AFK → custom), then alphabetically by name within each tag.</p>
+        </section>
+        <section class="help-section">
+          <h4>Theme</h4>
+          <p>Use the switch in the top-right to toggle between the <strong>OSRS</strong> (stone &amp; gold) theme and the <strong>Modern</strong> dark theme. Your choice is saved.</p>
+        </section>
+        <section class="help-section">
+          <h4>Clear all</h4>
+          <p>Removes every activity from the list. This cannot be undone (your tags remain).</p>
+        </section>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel" data-close-help>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(() => {
+  const STORAGE_KEY = 'rs-activity-wheel-options-v3';
+  const TAGS_STORAGE_KEY = 'rs-activity-wheel-custom-tags-v3';
+  const THEME_STORAGE_KEY = 'rs-activity-wheel-theme';
+
+  // Built-in tags (always available)
+  const BUILTIN_TAGS = {
+    boss: { id: 'boss', label: 'Boss', color: '#e5534b' },
+    skilling: { id: 'skilling', label: 'Skilling', color: '#3fb950' },
+    other: { id: 'other', label: 'Other', color: '#58a6ff' },
+    afk: { id: 'afk', label: 'AFK', color: '#ffa657' },
+  };
+
+  // Palette for custom tags
+  const CUSTOM_PALETTE = [
+    '#d2a8ff', '#7ee787', '#ff7b72', '#79c0ff',
+    '#e3b341', '#f778ba', '#39c5cf', '#a371f7',
+    '#56d364', '#f0883e', '#db61a2', '#2f81f7',
+  ];
+
+  // Default starter options
+  const DEFAULT_OPTIONS = [
+    { id: crypto.randomUUID(), name: 'Zulrah', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Vorkath', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Chambers of Xeric', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Theatre of Blood', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Tombs of Amascut', tag: 'boss', subs: [] },
+    {
+      id: crypto.randomUUID(),
+      name: 'Runecrafting',
+      tag: 'skilling',
+      subs: [
+        { id: crypto.randomUUID(), name: 'Blood runes' },
+        { id: crypto.randomUUID(), name: 'Soul runes' },
+        { id: crypto.randomUUID(), name: 'Wrath runes' },
+        { id: crypto.randomUUID(), name: 'Nature runes' },
+        { id: crypto.randomUUID(), name: 'Law runes' },
+        { id: crypto.randomUUID(), name: 'Death runes' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Slayer',
+      tag: 'skilling',
+      subs: [
+        { id: crypto.randomUUID(), name: 'Konar' },
+        { id: crypto.randomUUID(), name: 'Nieve / Steve' },
+        { id: crypto.randomUUID(), name: 'Duradel' },
+        { id: crypto.randomUUID(), name: 'Krystilia (Wildy)' },
+      ],
+    },
+    { id: crypto.randomUUID(), name: 'Agility (Rooftops)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Farming runs', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Hunter (Bird houses)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Mining (Motherlode)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'NMZ / Nightmare Zone', tag: 'afk', subs: [] },
+    { id: crypto.randomUUID(), name: 'Crab / Sand crabs', tag: 'afk', subs: [] },
+    { id: crypto.randomUUID(), name: 'Clue scrolls', tag: 'other', subs: [] },
+    { id: crypto.randomUUID(), name: 'Questing', tag: 'other', subs: [] },
+    { id: crypto.randomUUID(), name: 'PVP / Wildy', tag: 'other', subs: [] },
+  ];
+
+  const SUB_COLORS = [
+    '#d2a8ff', '#a5d6ff', '#f0b429', '#7ee787',
+    '#ff7b72', '#79c0ff', '#ffa657', '#d2a8ff',
+  ];
+
+  // State
+  let options = loadOptions();
+  let customTags = loadCustomTags(); // { id, label, color }
+  let activeFilters = new Set(); // empty = show all tags
+  let isSpinning = false;
+  let currentRotation = 0;
+  let subRotation = 0;
+  let expandedId = null;
+  let currentSubItems = []; // subs currently on the sub-wheel
+  let currentSubParent = null; // parent option for the sub-wheel
+
+  // DOM
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const subCanvas = document.getElementById('subWheelCanvas');
+  const subCtx = subCanvas.getContext('2d');
+  const subWheelWrap = document.getElementById('subWheelWrap');
+  const spinBtn = document.getElementById('spinBtn');
+  const spinSubBtn = document.getElementById('spinSubBtn');
+  const subWheelLabel = document.getElementById('subWheelLabel');
+  const resultEl = document.getElementById('result');
+  const resultText = document.getElementById('resultText');
+  const resultTag = document.getElementById('resultTag');
+  const resultSubLine = document.getElementById('resultSubLine');
+  const resultSubText = document.getElementById('resultSubText');
+  const addForm = document.getElementById('addForm');
+  const optionNameInput = document.getElementById('optionName');
+  const optionTagSelect = document.getElementById('optionTag');
+  const optionsList = document.getElementById('optionsList');
+  const clearBtn = document.getElementById('clearBtn');
+  const filterBar = document.getElementById('filterBar');
+  const newTagBtn = document.getElementById('newTagBtn');
+  const tagModal = document.getElementById('tagModal');
+  const tagForm = document.getElementById('tagForm');
+  const newTagNameInput = document.getElementById('newTagName');
+  const manageTagsBtn = document.getElementById('manageTagsBtn');
+  const manageTagsModal = document.getElementById('manageTagsModal');
+  const manageTagsList = document.getElementById('manageTagsList');
+
+  // ---------- Storage ----------
+  function loadOptions() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((o) => ({
+            ...o,
+            subs: Array.isArray(o.subs) ? o.subs : [],
+            enabled: o.enabled !== false,
+          }));
+        }
+      }
+    } catch (_) {}
+    return DEFAULT_OPTIONS.map((o) => ({
+      ...o,
+      id: o.id || crypto.randomUUID(),
+      subs: (o.subs || []).map((s) => ({ ...s, id: s.id || crypto.randomUUID() })),
+      enabled: true,
+    }));
+  }
+
+  function saveOptions() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(options));
+  }
+
+  function loadCustomTags() {
+    try {
+      const raw = localStorage.getItem(TAGS_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  function saveCustomTags() {
+    localStorage.setItem(TAGS_STORAGE_KEY, JSON.stringify(customTags));
+  }
+
+  // ---------- Tag helpers ----------
+  function getAllTags() {
+    // Built-ins first, then custom (by creation order)
+    const list = Object.values(BUILTIN_TAGS);
+    customTags.forEach((t) => list.push(t));
+    return list;
+  }
+
+  function getTagInfo(tagId) {
+    if (BUILTIN_TAGS[tagId]) return BUILTIN_TAGS[tagId];
+    const custom = customTags.find((t) => t.id === tagId);
+    if (custom) return custom;
+    // Fallback for unknown tags
+    return { id: tagId, label: tagId, color: '#8b949e' };
+  }
+
+  function getTagColor(tagId) {
+    return getTagInfo(tagId).color;
+  }
+
+  function getTagLabel(tagId) {
+    return getTagInfo(tagId).label;
+  }
+
+  function slugify(name) {
+    return name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 24) || 'custom';
+  }
+
+  function createCustomTag(label) {
+    const clean = label.trim();
+    if (!clean) return null;
+
+    // Don't duplicate built-in labels (case-insensitive)
+    const lower = clean.toLowerCase();
+    for (const t of Object.values(BUILTIN_TAGS)) {
+      if (t.label.toLowerCase() === lower || t.id === lower) {
+        return t.id; // reuse built-in
+      }
+    }
+
+    // Don't duplicate existing custom
+    const existing = customTags.find(
+      (t) => t.label.toLowerCase() === lower || t.id === slugify(clean)
+    );
+    if (existing) return existing.id;
+
+    let id = slugify(clean);
+    // Ensure unique id
+    let n = 1;
+    while (
+      BUILTIN_TAGS[id] ||
+      customTags.some((t) => t.id === id)
+    ) {
+      id = `${slugify(clean)}-${n++}`;
+    }
+
+    const color = CUSTOM_PALETTE[customTags.length % CUSTOM_PALETTE.length];
+    customTags.push({ id, label: clean, color });
+    saveCustomTags();
+    return id;
+  }
+
+  function deleteCustomTag(tagId) {
+    if (BUILTIN_TAGS[tagId]) return false; // cannot delete built-ins
+
+    const count = options.filter((o) => o.tag === tagId).length;
+    if (count > 0) {
+      const ok = confirm(
+        `"${getTagLabel(tagId)}" is used by ${count} activit${count === 1 ? 'y' : 'ies'}.\n\nDelete the tag and reassign those activities to Other?`
+      );
+      if (!ok) return false;
+      options.forEach((o) => {
+        if (o.tag === tagId) o.tag = 'other';
+      });
+      saveOptions();
+    }
+
+    customTags = customTags.filter((t) => t.id !== tagId);
+    saveCustomTags();
+
+    activeFilters.delete(tagId);
+    if (optionTagSelect.value === tagId) optionTagSelect.value = '';
+    return true;
+  }
+
+  // ---------- Filter / list helpers ----------
+  const BUILTIN_TAG_ORDER = ['boss', 'skilling', 'other', 'afk'];
+
+  function sortOptions(list) {
+    return [...list].sort((a, b) => {
+      const aBuiltin = BUILTIN_TAG_ORDER.indexOf(a.tag);
+      const bBuiltin = BUILTIN_TAG_ORDER.indexOf(b.tag);
+      const aIsBuiltin = aBuiltin >= 0;
+      const bIsBuiltin = bBuiltin >= 0;
+
+      if (aIsBuiltin && bIsBuiltin && aBuiltin !== bBuiltin) {
+        return aBuiltin - bBuiltin;
+      }
+      if (aIsBuiltin !== bIsBuiltin) {
+        return aIsBuiltin ? -1 : 1;
+      }
+      // Both custom (or same builtin tag): sort by tag label, then name
+      if (a.tag !== b.tag) {
+        return getTagLabel(a.tag).localeCompare(getTagLabel(b.tag), undefined, {
+          sensitivity: 'base',
+        });
+      }
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
+  }
+
+  /** Options matching current tag filters (includes disabled). */
+  function getTagScopedOptions() {
+    if (activeFilters.size === 0) return options;
+    return options.filter((o) => activeFilters.has(o.tag));
+  }
+
+  /** List options: tag filter only (includes hidden, so they can be un-hidden). */
+  function getListOptions() {
+    return sortOptions(getTagScopedOptions());
+  }
+
+  /** Wheel options: tag filter AND enabled. */
+  function getFilteredOptions() {
+    return sortOptions(
+      getTagScopedOptions().filter((o) => o.enabled !== false)
+    );
+  }
+
+  // ---------- Drawing ----------
+  function drawWheelOn(ctx, canvasEl, items, rotation, colorFn, isSub = false) {
+    const cssSize = parseFloat(canvasEl.style.width) || (isSub ? 260 : 420);
+    const center = cssSize / 2;
+    const radius = center - (isSub ? 6 : 8);
+
+    ctx.clearRect(0, 0, cssSize, cssSize);
+
+    if (items.length === 0) {
+      const isOsrs = document.body.getAttribute('data-theme') !== 'modern';
+      ctx.beginPath();
+      ctx.arc(center, center, radius, 0, Math.PI * 2);
+      ctx.fillStyle = isOsrs ? '#2e2c29' : '#21262d';
+      ctx.fill();
+      ctx.strokeStyle = isOsrs ? '#5a5248' : '#30363d';
+      ctx.lineWidth = isSub ? 3 : 4;
+      ctx.stroke();
+      ctx.fillStyle = isOsrs ? '#8a7d68' : '#8b949e';
+      ctx.font = `${isSub ? 13 : 16}px Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(isSub ? 'No subs' : 'Add options!', center, center);
+      return;
+    }
+
+    const arc = (Math.PI * 2) / items.length;
+
+    items.forEach((item, i) => {
+      const start = rotation + i * arc;
+      const end = start + arc;
+
+      ctx.beginPath();
+      ctx.moveTo(center, center);
+      ctx.arc(center, center, radius, start, end);
+      ctx.closePath();
+
+      const baseColor = colorFn(item, i);
+      ctx.fillStyle = i % 2 === 0 ? baseColor : adjustBrightness(baseColor, -18);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(center, center);
+      ctx.rotate(start + arc / 2);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+      const fontSize = Math.min(isSub ? 12 : 14, (isSub ? 160 : 280) / items.length);
+      ctx.font = `bold ${fontSize}px Roboto, sans-serif`;
+      ctx.shadowColor = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur = 3;
+
+      const maxChars = Math.max(6, Math.floor((isSub ? 18 : 26) - items.length * 0.5));
+      let label = item.name;
+      if (label.length > maxChars) label = label.slice(0, maxChars - 1) + '…';
+      ctx.fillText(label, radius - (isSub ? 10 : 14), 0);
+      ctx.restore();
+    });
+
+    const isOsrs = document.body.getAttribute('data-theme') !== 'modern';
+    const hubFill = isOsrs ? '#1a1612' : '#0d1117';
+    const hubStroke = isSub
+      ? (isOsrs ? '#c080ff' : '#d2a8ff')
+      : (isOsrs ? '#e6a519' : '#f0b429');
+    const hubDot = isSub
+      ? (isOsrs ? '#c080ff' : '#d2a8ff')
+      : (isOsrs ? '#ffcf3f' : '#f0b429');
+
+    const hubR = isSub ? 18 : 26;
+    ctx.beginPath();
+    ctx.arc(center, center, hubR, 0, Math.PI * 2);
+    ctx.fillStyle = hubFill;
+    ctx.fill();
+    ctx.strokeStyle = hubStroke;
+    ctx.lineWidth = isSub ? 2.5 : 3;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(center, center, isSub ? 5 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = hubDot;
+    ctx.fill();
+  }
+
+  function drawMainWheel() {
+    const filtered = getFilteredOptions();
+    drawWheelOn(
+      ctx,
+      canvas,
+      filtered,
+      currentRotation,
+      (opt) => getTagColor(opt.tag),
+      false
+    );
+  }
+
+  function drawSubWheel(subs) {
+    drawWheelOn(
+      subCtx,
+      subCanvas,
+      subs,
+      subRotation,
+      (_, i) => SUB_COLORS[i % SUB_COLORS.length],
+      true
+    );
+  }
+
+  function adjustBrightness(hex, amount) {
+    const num = parseInt(hex.slice(1), 16);
+    let r = (num >> 16) + amount;
+    let g = ((num >> 8) & 0xff) + amount;
+    let b = (num & 0xff) + amount;
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+  }
+
+  // ---------- UI rendering ----------
+  function renderTagSelect(selectedId) {
+    const tags = getAllTags();
+    optionTagSelect.innerHTML =
+      `<option value="" disabled ${!selectedId ? 'selected' : ''}>Tag...</option>` +
+      tags
+        .map(
+          (t) =>
+            `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${escapeHtml(t.label)}</option>`
+        )
+        .join('');
+  }
+
+  function renderFilterBar() {
+    const tags = getAllTags();
+    // Only show tags that are either built-in or actually used / custom
+    const usedTagIds = new Set(options.map((o) => o.tag));
+    const visible = tags.filter(
+      (t) => BUILTIN_TAGS[t.id] || usedTagIds.has(t.id) || customTags.some((c) => c.id === t.id)
+    );
+
+    const allActive = activeFilters.size === 0;
+
+    filterBar.innerHTML =
+      `<button class="filter-btn ${allActive ? 'active' : ''}" data-filter="all" title="Show all tags">All</button>` +
+      visible
+        .map((t) => {
+          const on = activeFilters.has(t.id);
+          const style = on
+            ? `background:${t.color};border-color:${t.color};color:#1a1a1a`
+            : '';
+          return `<button class="filter-btn ${on ? 'active' : ''}" data-filter="${t.id}" title="${escapeHtml(t.label)} (click to toggle)" style="${style}">${escapeHtml(t.label)}</button>`;
+        })
+        .join('');
+  }
+
+  function tagBadgeStyle(tagId) {
+    const info = getTagInfo(tagId);
+    const isBuiltin = !!BUILTIN_TAGS[tagId];
+    if (isBuiltin) return { className: tagId, style: '' };
+    // custom — inline color
+    return {
+      className: 'custom',
+      style: `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`,
+    };
+  }
+
+  function renderList() {
+    const filtered = getListOptions();
+    optionsList.innerHTML = '';
+
+    if (filtered.length === 0) {
+      optionsList.innerHTML = `<li class="empty-state">${
+        options.length === 0
+          ? 'No options yet. Add some above!'
+          : 'No options match this filter.'
+      }</li>`;
+      return;
+    }
+
+    filtered.forEach((opt) => {
+      const li = document.createElement('li');
+      const isEnabled = opt.enabled !== false;
+      li.className = 'option-item' + (isEnabled ? '' : ' is-hidden');
+      li.dataset.id = opt.id;
+
+      const subCount = (opt.subs || []).length;
+      const isOpen = expandedId === opt.id;
+      const badge = tagBadgeStyle(opt.tag);
+      const color = getTagColor(opt.tag);
+      const label = getTagLabel(opt.tag);
+      const visTitle = isEnabled ? 'Hide from wheel' : 'Show on wheel';
+      const visIcon = '👁';
+
+      li.innerHTML = `
+        <div class="option-row">
+          <span class="tag-dot ${BUILTIN_TAGS[opt.tag] ? opt.tag : ''}" style="${
+            !BUILTIN_TAGS[opt.tag] ? `background:${color}` : ''
+          }"></span>
+          <span class="name" title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</span>
+          ${subCount > 0 ? `<span class="sub-count">${subCount}</span>` : ''}
+          <span class="tag-label ${badge.className}" style="${badge.style}">${escapeHtml(label)}</span>
+          ${subCount > 0 && isEnabled ? `<button class="load-sub-btn" title="Load sub-wheel" data-action="load-sub" data-id="${opt.id}">🎡</button>` : ''}
+          <button class="visibility-btn ${isEnabled ? '' : 'is-off'}" title="${visTitle}" data-action="toggle-visibility" data-id="${opt.id}">${visIcon}</button>
+          <button class="expand-btn ${isOpen ? 'open' : ''}" title="Sub-options" data-action="expand" data-id="${opt.id}">
+            ${isOpen ? '▾' : '▸'}
+          </button>
+          <button class="remove-btn" title="Remove" data-action="remove" data-id="${opt.id}">×</button>
+        </div>
+        <div class="subs-panel ${isOpen ? 'open' : ''}" data-id="${opt.id}">
+          ${renderSubsPanel(opt)}
+        </div>
+      `;
+      optionsList.appendChild(li);
+    });
+  }
+
+  function renderSubsPanel(opt) {
+    const subs = opt.subs || [];
+    let html = '';
+
+    if (subs.length === 0) {
+      html += `<p class="subs-empty">No sub-options yet</p>`;
+    } else {
+      html += `<ul class="subs-list">`;
+      subs.forEach((s) => {
+        html += `
+          <li class="sub-item">
+            <span class="sub-name">${escapeHtml(s.name)}</span>
+            <button class="sub-remove" data-action="remove-sub" data-parent="${opt.id}" data-sub="${s.id}" title="Remove">×</button>
+          </li>
+        `;
+      });
+      html += `</ul>`;
+    }
+
+    html += `
+      <form class="sub-add-form" data-parent="${opt.id}">
+        <input type="text" placeholder="Add sub-option..." maxlength="40" required autocomplete="off">
+        <button type="submit">Add</button>
+      </form>
+    `;
+    return html;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function updateToggleAllBtn() {
+    const btn = document.getElementById('toggleAllBtn');
+    if (!btn) return;
+    const scoped = getTagScopedOptions();
+    if (scoped.length === 0) {
+      btn.disabled = true;
+      btn.textContent = 'Disable all';
+      return;
+    }
+    btn.disabled = false;
+    const allEnabled = scoped.every((o) => o.enabled !== false);
+    btn.textContent = allEnabled ? 'Disable all' : 'Enable all';
+  }
+
+  function updateUI() {
+    renderTagSelect(optionTagSelect.value || '');
+    renderFilterBar();
+    drawMainWheel();
+    renderList();
+    updateToggleAllBtn();
+    spinBtn.disabled = getFilteredOptions().length === 0 || isSpinning;
+  }
+
+  // ---------- Spin ----------
+  function normalizeAngle(a) {
+    const tau = Math.PI * 2;
+    return ((a % tau) + tau) % tau;
+  }
+
+  /** Index of the segment under the top pointer (-π/2) given current rotation. */
+  function getIndexAtPointer(rotation, itemCount) {
+    if (itemCount <= 0) return 0;
+    const tau = Math.PI * 2;
+    const arc = tau / itemCount;
+    // Angle of pointer relative to where segment 0 starts
+    const relative = normalizeAngle(-Math.PI / 2 - rotation);
+    // Tiny epsilon avoids floating-point landing exactly on a boundary
+    let idx = Math.floor((relative + 1e-9) / arc);
+    if (idx >= itemCount) idx = 0;
+    return idx;
+  }
+
+  /**
+   * Compute a final rotation so segment targetIndex's center sits under the top pointer.
+   * Always spins in the same direction (negative delta) with several full turns.
+   */
+  function computeTargetRotation(current, itemCount, targetIndex) {
+    const tau = Math.PI * 2;
+    const arc = tau / itemCount;
+    // Segment i center is at rotation + i*arc + arc/2. Put that at the top (-π/2).
+    const targetRot = -Math.PI / 2 - targetIndex * arc - arc / 2;
+    // delta so current+delta ≡ targetRot (mod τ), preferring negative (consistent spin dir)
+    let delta = targetRot - current;
+    // Map into (-τ, 0]
+    delta = delta - Math.ceil(delta / tau) * tau;
+    if (Math.abs(delta) < 1e-10) delta = -tau;
+    const extraSpins = 5 + Math.random() * 4;
+    return current + delta - extraSpins * tau;
+  }
+
+  function animateSpin({ startRot, endRot, duration, onFrame, onDone }) {
+    const startTime = performance.now();
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+    function frame(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = easeOutCubic(t);
+      const rot = startRot + (endRot - startRot) * eased;
+      onFrame(rot);
+      if (t < 1) requestAnimationFrame(frame);
+      else onDone(endRot);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function setSpinning(active) {
+    isSpinning = active;
+    spinBtn.disabled = active || getFilteredOptions().length === 0;
+    if (spinSubBtn) {
+      spinSubBtn.disabled = active || currentSubItems.length === 0;
+    }
+  }
+
+  function showSubWheel(parentOpt) {
+    const subs = (parentOpt && parentOpt.subs) || [];
+    if (subs.length === 0) {
+      hideSubWheel();
+      return;
+    }
+    currentSubParent = parentOpt;
+    currentSubItems = [...subs];
+    subRotation = 0;
+    subWheelWrap.classList.remove('hidden');
+    if (subWheelLabel) {
+      subWheelLabel.textContent = parentOpt.name.length > 14
+        ? parentOpt.name.slice(0, 13) + '…'
+        : parentOpt.name;
+    }
+    if (spinSubBtn) {
+      spinSubBtn.classList.remove('hidden');
+      spinSubBtn.disabled = isSpinning || currentSubItems.length === 0;
+    }
+    // Wait a frame so layout knows the sub-wheel is visible, then size + draw
+    requestAnimationFrame(() => {
+      resizeCanvases();
+      drawSubWheel(currentSubItems);
+    });
+  }
+
+  function hideSubWheel() {
+    currentSubParent = null;
+    currentSubItems = [];
+    subWheelWrap.classList.add('hidden');
+    if (spinSubBtn) spinSubBtn.classList.add('hidden');
+    resultSubLine.classList.add('hidden');
+  }
+
+  function spin() {
+    const filtered = getFilteredOptions();
+    if (filtered.length === 0 || isSpinning) return;
+
+    setSpinning(true);
+    resultEl.classList.add('hidden');
+    resultSubLine.classList.add('hidden');
+    // Keep sub-wheel if user loaded one manually; hide only when starting a full main spin
+    // (will re-show if result has subs)
+    hideSubWheel();
+
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    const endRotation = computeTargetRotation(
+      currentRotation,
+      filtered.length,
+      randomIndex
+    );
+    const duration = 4200 + Math.random() * 1200;
+
+    animateSpin({
+      startRot: currentRotation,
+      endRot: endRotation,
+      duration,
+      onFrame: (rot) => {
+        currentRotation = rot;
+        drawMainWheel();
+      },
+      onDone: (finalRot) => {
+        currentRotation = finalRot;
+        drawMainWheel();
+        // Trust the visual position under the pointer, not the pre-chosen index
+        const landed = getIndexAtPointer(finalRot, filtered.length);
+        handleMainResult(filtered[landed]);
+      },
+    });
+  }
+
+  function spinSub() {
+    if (isSpinning || currentSubItems.length === 0) return;
+
+    setSpinning(true);
+    resultSubLine.classList.add('hidden');
+
+    const randomIndex = Math.floor(Math.random() * currentSubItems.length);
+    const endRotation = computeTargetRotation(
+      subRotation,
+      currentSubItems.length,
+      randomIndex
+    );
+    const duration = 2800 + Math.random() * 1000;
+
+    animateSpin({
+      startRot: subRotation,
+      endRot: endRotation,
+      duration,
+      onFrame: (rot) => {
+        subRotation = rot;
+        drawSubWheel(currentSubItems);
+      },
+      onDone: (finalRot) => {
+        subRotation = finalRot;
+        drawSubWheel(currentSubItems);
+        const landed = getIndexAtPointer(finalRot, currentSubItems.length);
+        const subSelected = currentSubItems[landed];
+        // If no main result yet, show parent + sub
+        if (currentSubParent) {
+          resultText.textContent = currentSubParent.name;
+          const info = getTagInfo(currentSubParent.tag);
+          resultTag.textContent = info.label;
+          if (BUILTIN_TAGS[currentSubParent.tag]) {
+            resultTag.className = `result-tag ${currentSubParent.tag}`;
+            resultTag.style.cssText = '';
+          } else {
+            resultTag.className = 'result-tag custom';
+            resultTag.style.cssText = `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`;
+          }
+          resultEl.classList.remove('hidden');
+        }
+        resultSubText.textContent = subSelected.name;
+        resultSubLine.classList.remove('hidden');
+        setSpinning(false);
+      },
+    });
+  }
+
+  function handleMainResult(selected) {
+    resultText.textContent = selected.name;
+
+    const info = getTagInfo(selected.tag);
+    resultTag.textContent = info.label;
+    if (BUILTIN_TAGS[selected.tag]) {
+      resultTag.className = `result-tag ${selected.tag}`;
+      resultTag.style.cssText = '';
+    } else {
+      resultTag.className = 'result-tag custom';
+      resultTag.style.cssText = `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`;
+    }
+    resultEl.classList.remove('hidden');
+    resultSubLine.classList.add('hidden');
+
+    const subs = selected.subs || [];
+    if (subs.length === 0) {
+      setSpinning(false);
+      return;
+    }
+
+    showSubWheel(selected);
+
+    // Auto-spin sub after a short pause
+    setTimeout(() => {
+      if (currentSubItems.length === 0) {
+        setSpinning(false);
+        return;
+      }
+      setSpinning(true);
+      const subIndex = Math.floor(Math.random() * currentSubItems.length);
+      const endSubRot = computeTargetRotation(
+        subRotation,
+        currentSubItems.length,
+        subIndex
+      );
+      const subDuration = 2800 + Math.random() * 1000;
+
+      animateSpin({
+        startRot: subRotation,
+        endRot: endSubRot,
+        duration: subDuration,
+        onFrame: (rot) => {
+          subRotation = rot;
+          drawSubWheel(currentSubItems);
+        },
+        onDone: (finalRot) => {
+          subRotation = finalRot;
+          drawSubWheel(currentSubItems);
+          const landed = getIndexAtPointer(finalRot, currentSubItems.length);
+          resultSubText.textContent = currentSubItems[landed].name;
+          resultSubLine.classList.remove('hidden');
+          setSpinning(false);
+        },
+      });
+    }, 400);
+  }
+
+  // ---------- Events ----------
+  spinBtn.addEventListener('click', spin);
+  if (spinSubBtn) spinSubBtn.addEventListener('click', spinSub);
+
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = optionNameInput.value.trim();
+    const tag = optionTagSelect.value;
+    if (!name || !tag) return;
+
+    options.push({
+      id: crypto.randomUUID(),
+      name,
+      tag,
+      subs: [],
+      enabled: true,
+    });
+    saveOptions();
+    optionNameInput.value = '';
+    optionTagSelect.selectedIndex = 0;
+    updateUI();
+    optionNameInput.focus();
+  });
+
+  optionsList.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+
+    if (action === 'remove') {
+      options = options.filter((o) => o.id !== id);
+      if (expandedId === id) expandedId = null;
+      saveOptions();
+      updateUI();
+      return;
+    }
+
+    if (action === 'expand') {
+      expandedId = expandedId === id ? null : id;
+      renderList();
+      return;
+    }
+
+    if (action === 'toggle-visibility') {
+      const opt = options.find((o) => o.id === id);
+      if (opt) {
+        opt.enabled = opt.enabled === false;
+        saveOptions();
+        updateUI();
+      }
+      return;
+    }
+
+    if (action === 'load-sub') {
+      const opt = options.find((o) => o.id === id);
+      if (opt && (opt.subs || []).length > 0) {
+        showSubWheel(opt);
+        // Reflect parent in result area (cleared sub line until they spin)
+        resultText.textContent = opt.name;
+        const info = getTagInfo(opt.tag);
+        resultTag.textContent = info.label;
+        if (BUILTIN_TAGS[opt.tag]) {
+          resultTag.className = `result-tag ${opt.tag}`;
+          resultTag.style.cssText = '';
+        } else {
+          resultTag.className = 'result-tag custom';
+          resultTag.style.cssText = `background:${info.color}22;color:${info.color};border:1px solid ${info.color}`;
+        }
+        resultEl.classList.remove('hidden');
+        resultSubLine.classList.add('hidden');
+      }
+      return;
+    }
+
+    if (action === 'remove-sub') {
+      const parentId = btn.dataset.parent;
+      const subId = btn.dataset.sub;
+      const parent = options.find((o) => o.id === parentId);
+      if (parent) {
+        parent.subs = (parent.subs || []).filter((s) => s.id !== subId);
+        saveOptions();
+        renderList();
+      }
+    }
+  });
+
+  optionsList.addEventListener('submit', (e) => {
+    const form = e.target.closest('.sub-add-form');
+    if (!form) return;
+    e.preventDefault();
+
+    const parentId = form.dataset.parent;
+    const input = form.querySelector('input');
+    const name = input.value.trim();
+    if (!name) return;
+
+    const parent = options.find((o) => o.id === parentId);
+    if (parent) {
+      if (!parent.subs) parent.subs = [];
+      parent.subs.push({ id: crypto.randomUUID(), name });
+      saveOptions();
+      input.value = '';
+      expandedId = parentId;
+      renderList();
+      const newInput = optionsList.querySelector(
+        `.sub-add-form[data-parent="${parentId}"] input`
+      );
+      if (newInput) newInput.focus();
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    if (options.length === 0) return;
+    if (!confirm('Remove all options? This cannot be undone.')) return;
+    options = [];
+    expandedId = null;
+    saveOptions();
+    subWheelWrap.classList.add('hidden');
+    updateUI();
+  });
+
+  const toggleAllBtn = document.getElementById('toggleAllBtn');
+  if (toggleAllBtn) {
+    toggleAllBtn.addEventListener('click', () => {
+      const scoped = getTagScopedOptions();
+      if (scoped.length === 0) return;
+      const allEnabled = scoped.every((o) => o.enabled !== false);
+      const next = !allEnabled; // only disable when everything is on; otherwise enable all
+      scoped.forEach((o) => {
+        o.enabled = next;
+      });
+      saveOptions();
+      updateUI();
+    });
+  }
+
+  filterBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    const id = btn.dataset.filter;
+
+    if (id === 'all') {
+      activeFilters.clear();
+    } else if (activeFilters.has(id)) {
+      activeFilters.delete(id);
+    } else {
+      activeFilters.add(id);
+    }
+
+    expandedId = null;
+    updateUI();
+  });
+
+  // Create tag modal
+  function openTagModal() {
+    tagModal.classList.remove('hidden');
+    newTagNameInput.value = '';
+    newTagNameInput.focus();
+  }
+
+  function closeTagModal() {
+    tagModal.classList.add('hidden');
+  }
+
+  newTagBtn.addEventListener('click', openTagModal);
+
+  tagModal.addEventListener('click', (e) => {
+    if (e.target.hasAttribute('data-close')) closeTagModal();
+  });
+
+  tagForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = newTagNameInput.value.trim();
+    if (!name) return;
+    const id = createCustomTag(name);
+    closeTagModal();
+    updateUI();
+    optionTagSelect.value = id;
+  });
+
+  // Manage tags modal
+  function renderManageTagsList() {
+    const builtins = Object.values(BUILTIN_TAGS);
+    const customs = customTags;
+
+    if (builtins.length === 0 && customs.length === 0) {
+      manageTagsList.innerHTML = `<li class="manage-tags-empty">No tags</li>`;
+      return;
+    }
+
+    let html = '';
+
+    builtins.forEach((t) => {
+      const count = options.filter((o) => o.tag === t.id).length;
+      html += `
+        <li class="manage-tag-item">
+          <span class="manage-tag-dot" style="background:${t.color}"></span>
+          <span class="manage-tag-name">${escapeHtml(t.label)}</span>
+          <span class="manage-tag-meta">${count} · built-in</span>
+          <button class="manage-tag-delete" disabled title="Built-in tags cannot be deleted">Delete</button>
+        </li>
+      `;
+    });
+
+    if (customs.length === 0) {
+      html += `<li class="manage-tags-empty" style="padding:0.8rem 0.5rem">No custom tags yet. Create one with the + button.</li>`;
+    } else {
+      customs.forEach((t) => {
+        const count = options.filter((o) => o.tag === t.id).length;
+        html += `
+          <li class="manage-tag-item">
+            <span class="manage-tag-dot" style="background:${t.color}"></span>
+            <span class="manage-tag-name">${escapeHtml(t.label)}</span>
+            <span class="manage-tag-meta">${count} activit${count === 1 ? 'y' : 'ies'}</span>
+            <button class="manage-tag-delete" data-delete-tag="${t.id}" title="Delete tag">Delete</button>
+          </li>
+        `;
+      });
+    }
+
+    manageTagsList.innerHTML = html;
+  }
+
+  function openManageTagsModal() {
+    renderManageTagsList();
+    manageTagsModal.classList.remove('hidden');
+  }
+
+  function closeManageTagsModal() {
+    manageTagsModal.classList.add('hidden');
+  }
+
+  manageTagsBtn.addEventListener('click', openManageTagsModal);
+
+  manageTagsModal.addEventListener('click', (e) => {
+    if (e.target.hasAttribute('data-close-manage')) {
+      closeManageTagsModal();
+      return;
+    }
+    const delBtn = e.target.closest('[data-delete-tag]');
+    if (delBtn) {
+      const tagId = delBtn.dataset.deleteTag;
+      if (deleteCustomTag(tagId)) {
+        renderManageTagsList();
+        updateUI();
+      }
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!tagModal.classList.contains('hidden')) closeTagModal();
+    if (!manageTagsModal.classList.contains('hidden')) closeManageTagsModal();
+    const helpModalEl = document.getElementById('helpModal');
+    if (helpModalEl && !helpModalEl.classList.contains('hidden')) {
+      helpModalEl.classList.add('hidden');
+    }
+  });
+
+  // ---------- Canvas sizing ----------
+  function resizeCanvases() {
+    const dpr = window.devicePixelRatio || 1;
+
+    const mainContainer = canvas.parentElement;
+    const mainSize = Math.min(420, mainContainer.clientWidth || 420);
+    canvas.width = mainSize * dpr;
+    canvas.height = mainSize * dpr;
+    canvas.style.width = mainSize + 'px';
+    canvas.style.height = mainSize + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const subContainer = subCanvas.parentElement;
+    const subSize = Math.min(260, subContainer.clientWidth || 260);
+    subCanvas.width = subSize * dpr;
+    subCanvas.height = subSize * dpr;
+    subCanvas.style.width = subSize + 'px';
+    subCanvas.style.height = subSize + 'px';
+    subCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    drawMainWheel();
+    if (currentSubItems.length > 0 && !subWheelWrap.classList.contains('hidden')) {
+      drawSubWheel(currentSubItems);
+    }
+  }
+
+  window.addEventListener('resize', resizeCanvases);
+
+
+
+  // Help modal
+  const helpBtn = document.getElementById('helpBtn');
+  const helpModal = document.getElementById('helpModal');
+
+  function openHelpModal() {
+    if (helpModal) helpModal.classList.remove('hidden');
+  }
+
+  function closeHelpModal() {
+    if (helpModal) helpModal.classList.add('hidden');
+  }
+
+  if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
+  if (helpModal) {
+    helpModal.addEventListener('click', (e) => {
+      if (e.target.matches('[data-close-help]') || e.target.closest('[data-close-help]')) {
+        closeHelpModal();
+      }
+    });
+  }
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeToggleText = document.getElementById('themeToggleText');
+
+  function applyTheme(theme) {
+    const next = theme === 'modern' ? 'modern' : 'osrs';
+    document.body.setAttribute('data-theme', next);
+    if (themeToggleText) {
+      themeToggleText.textContent = next === 'modern' ? 'Modern' : 'OSRS';
+    }
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+    // Redraw wheels so hub colors match theme
+    drawMainWheel();
+    if (currentSubItems.length > 0 && !subWheelWrap.classList.contains('hidden')) {
+      drawSubWheel(currentSubItems);
+    }
+  }
+
+  function loadTheme() {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved === 'modern' || saved === 'osrs') return saved;
+    } catch (_) {}
+    return 'osrs';
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme') || 'osrs';
+      applyTheme(current === 'osrs' ? 'modern' : 'osrs');
+    });
+  }
+
+  // Init
+  applyTheme(loadTheme());
+  resizeCanvases();
+  updateUI();
+})();
+
+  </script>
+</body>
+</html>

@@ -1047,6 +1047,10 @@
     if (e.key !== 'Escape') return;
     if (!tagModal.classList.contains('hidden')) closeTagModal();
     if (!manageTagsModal.classList.contains('hidden')) closeManageTagsModal();
+    const helpModalEl = document.getElementById('helpModal');
+    if (helpModalEl && !helpModalEl.classList.contains('hidden')) {
+      helpModalEl.classList.add('hidden');
+    }
   });
 
   // ---------- Canvas sizing ----------
@@ -1076,6 +1080,29 @@
   }
 
   window.addEventListener('resize', resizeCanvases);
+
+
+
+  // Help modal
+  const helpBtn = document.getElementById('helpBtn');
+  const helpModal = document.getElementById('helpModal');
+
+  function openHelpModal() {
+    if (helpModal) helpModal.classList.remove('hidden');
+  }
+
+  function closeHelpModal() {
+    if (helpModal) helpModal.classList.add('hidden');
+  }
+
+  if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
+  if (helpModal) {
+    helpModal.addEventListener('click', (e) => {
+      if (e.target.matches('[data-close-help]') || e.target.closest('[data-close-help]')) {
+        closeHelpModal();
+      }
+    });
+  }
 
   // ---------- Theme ----------
   const themeToggle = document.getElementById('themeToggle');

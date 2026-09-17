@@ -87,7 +87,107 @@ body {
     -1px -1px 0 #1a1000;
 }
 
-/* Theme toggle — fixed in header corner so it's always visible */
+.help-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 2px solid var(--accent);
+  color: var(--accent-bright);
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  transition: filter 0.15s, box-shadow 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+.help-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px rgba(230, 165, 25, 0.35);
+}
+
+@media (max-width: 640px) {
+  .help-btn {
+    position: static;
+    margin: 0 auto 0.5rem;
+  }
+}
+
+body[data-theme="modern"] .help-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Roboto', system-ui, sans-serif;
+}
+
+.modal-card-help {
+  width: min(520px, 94vw);
+  max-height: min(80vh, 640px);
+  display: flex;
+  flex-direction: column;
+}
+
+.help-body {
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  margin: 0.25rem 0 0.75rem;
+  text-align: left;
+  flex: 1;
+  min-height: 0;
+}
+
+.help-section {
+  margin-bottom: 1rem;
+}
+
+.help-section:last-child {
+  margin-bottom: 0.25rem;
+}
+
+.help-section h4 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: var(--accent-bright, var(--accent));
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.03em;
+}
+
+.help-section p,
+.help-section li {
+  font-size: 0.88rem;
+  color: var(--text-muted, var(--text-dim));
+  line-height: 1.45;
+  margin: 0 0 0.35rem;
+}
+
+.help-section ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.help-section li {
+  margin-bottom: 0.3rem;
+}
+
+.help-section strong {
+  color: var(--text, var(--accent-bright));
+  font-weight: 600;
+}
+
+body[data-theme="modern"] .help-section h4 {
+  font-family: 'Roboto', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
 .theme-toggle {
   position: absolute;
   top: 0;
