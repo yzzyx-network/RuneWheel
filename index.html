@@ -18,15 +18,32 @@
 
     <main class="main">
       <section class="wheel-section">
-        <div class="wheel-container">
-          <canvas id="wheelCanvas" width="500" height="500"></canvas>
-          <div class="pointer"></div>
+        <div class="wheels-row">
+          <div class="wheel-container main-wheel">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="pointer"></div>
+            <span class="wheel-label">Main</span>
+          </div>
+
+          <div id="subWheelWrap" class="wheel-container sub-wheel hidden">
+            <canvas id="subWheelCanvas" width="280" height="280"></canvas>
+            <div class="pointer sub-pointer"></div>
+            <span class="wheel-label">Sub</span>
+          </div>
         </div>
+
         <button id="spinBtn" class="spin-btn">SPIN</button>
+
         <div id="result" class="result hidden">
           <span class="result-label">Selected:</span>
-          <span id="resultText" class="result-text"></span>
-          <span id="resultTag" class="result-tag"></span>
+          <div class="result-main-line">
+            <span id="resultText" class="result-text"></span>
+            <span id="resultTag" class="result-tag"></span>
+          </div>
+          <div id="resultSubLine" class="result-sub-line hidden">
+            <span class="result-arrow">→</span>
+            <span id="resultSubText" class="result-sub-text"></span>
+          </div>
         </div>
       </section>
 
@@ -55,7 +72,7 @@
 
         <div class="sidepanel-footer">
           <button id="clearBtn" class="clear-btn">Clear All</button>
-          <p class="hint">Options are saved locally</p>
+          <p class="hint">Options &amp; sub-options saved locally</p>
         </div>
       </aside>
     </main>

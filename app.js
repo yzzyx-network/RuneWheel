@@ -1,21 +1,44 @@
 (() => {
-  const STORAGE_KEY = 'rs-activity-wheel-options';
+  const STORAGE_KEY = 'rs-activity-wheel-options-v2';
 
-  // Default starter options
+  // Default starter options (some with sub-options)
   const DEFAULT_OPTIONS = [
-    { id: crypto.randomUUID(), name: 'Zulrah', tag: 'boss' },
-    { id: crypto.randomUUID(), name: 'Vorkath', tag: 'boss' },
-    { id: crypto.randomUUID(), name: 'Chambers of Xeric', tag: 'boss' },
-    { id: crypto.randomUUID(), name: 'Theatre of Blood', tag: 'boss' },
-    { id: crypto.randomUUID(), name: 'Tombs of Amascut', tag: 'boss' },
-    { id: crypto.randomUUID(), name: 'Agility (Rooftops)', tag: 'skilling' },
-    { id: crypto.randomUUID(), name: 'Slayer', tag: 'skilling' },
-    { id: crypto.randomUUID(), name: 'Farming runs', tag: 'skilling' },
-    { id: crypto.randomUUID(), name: 'Hunter (Bird houses)', tag: 'skilling' },
-    { id: crypto.randomUUID(), name: 'Mining (Motherlode)', tag: 'skilling' },
-    { id: crypto.randomUUID(), name: 'Clue scrolls', tag: 'other' },
-    { id: crypto.randomUUID(), name: 'Questing', tag: 'other' },
-    { id: crypto.randomUUID(), name: 'PVP / Wildy', tag: 'other' },
+    { id: crypto.randomUUID(), name: 'Zulrah', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Vorkath', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Chambers of Xeric', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Theatre of Blood', tag: 'boss', subs: [] },
+    { id: crypto.randomUUID(), name: 'Tombs of Amascut', tag: 'boss', subs: [] },
+    {
+      id: crypto.randomUUID(),
+      name: 'Runecrafting',
+      tag: 'skilling',
+      subs: [
+        { id: crypto.randomUUID(), name: 'Blood runes' },
+        { id: crypto.randomUUID(), name: 'Soul runes' },
+        { id: crypto.randomUUID(), name: 'Wrath runes' },
+        { id: crypto.randomUUID(), name: 'Nature runes' },
+        { id: crypto.randomUUID(), name: 'Law runes' },
+        { id: crypto.randomUUID(), name: 'Death runes' },
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Slayer',
+      tag: 'skilling',
+      subs: [
+        { id: crypto.randomUUID(), name: 'Konar' },
+        { id: crypto.randomUUID(), name: 'Nieve / Steve' },
+        { id: crypto.randomUUID(), name: 'Duradel' },
+        { id: crypto.randomUUID(), name: 'Krystilia (Wildy)' },
+      ],
+    },
+    { id: crypto.randomUUID(), name: 'Agility (Rooftops)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Farming runs', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Hunter (Bird houses)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Mining (Motherlode)', tag: 'skilling', subs: [] },
+    { id: crypto.randomUUID(), name: 'Clue scrolls', tag: 'other', subs: [] },
+    { id: crypto.randomUUID(), name: 'Questing', tag: 'other', subs: [] },
+    { id: crypto.randomUUID(), name: 'PVP / Wildy', tag: 'other', subs: [] },
   ];
 
   const TAG_COLORS = {
@@ -30,19 +53,31 @@
     other: 'Other',
   };
 
+  const SUB_COLORS = [
+    '#d2a8ff', '#a5d6ff', '#f0b429', '#7ee787',
+    '#ff7b72', '#79c0ff', '#ffa657', '#d2a8ff',
+  ];
+
   // State
   let options = loadOptions();
   let currentFilter = 'all';
   let isSpinning = false;
   let currentRotation = 0;
+  let subRotation = 0;
+  let expandedId = null; // which option's subs panel is open
 
   // DOM
   const canvas = document.getElementById('wheelCanvas');
   const ctx = canvas.getContext('2d');
+  const subCanvas = document.getElementById('subWheelCanvas');
+  const subCtx = subCanvas.getContext('2d');
+  const subWheelWrap = document.getElementById('subWheelWrap');
   const spinBtn = document.getElementById('spinBtn');
   const resultEl = document.getElementById('result');
   const resultText = document.getElementById('resultText');
   const resultTag = document.getElementById('resultTag');
+  const resultSubLine = document.getElementById('resultSubLine');
+  const resultSubText = document.getElementById('resultSubText');
   const addForm = document.getElementById('addForm');
   const optionNameInput = document.getElementById('optionName');
   const optionTagSelect = document.getElementById('optionTag');
@@ -55,10 +90,16 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Ensure every option has a subs array
+          return parsed.map((o) => ({
+            ...o,
+            subs: Array.isArray(o.subs) ? o.subs : [],
+          }));
+        }
       }
     } catch (_) {}
-    return [...DEFAULT_OPTIONS];
+    return DEFAULT_OPTIONS.map((o) => ({ ...o, subs: [...(o.subs || [])] }));
   }
 
   function saveOptions() {
@@ -70,52 +111,49 @@
     return options.filter((o) => o.tag === currentFilter);
   }
 
-  function drawWheel() {
-    const filtered = getFilteredOptions();
-    const size = canvas.width;
-    const center = size / 2;
-    const radius = center - 8;
+  // ---------- Drawing ----------
+  function drawWheelOn(ctx, canvasEl, items, rotation, colorFn, isSub = false) {
+    const dpr = window.devicePixelRatio || 1;
+    // Use CSS size for logical drawing
+    const cssSize = parseFloat(canvasEl.style.width) || (isSub ? 260 : 420);
+    const center = cssSize / 2;
+    const radius = center - (isSub ? 6 : 8);
 
-    ctx.clearRect(0, 0, size, size);
+    ctx.clearRect(0, 0, cssSize, cssSize);
 
-    if (filtered.length === 0) {
-      // Empty state
+    if (items.length === 0) {
       ctx.beginPath();
       ctx.arc(center, center, radius, 0, Math.PI * 2);
       ctx.fillStyle = '#21262d';
       ctx.fill();
       ctx.strokeStyle = '#30363d';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = isSub ? 3 : 4;
       ctx.stroke();
-
       ctx.fillStyle = '#8b949e';
-      ctx.font = '16px Roboto, sans-serif';
+      ctx.font = `${isSub ? 13 : 16}px Roboto, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Add some options!', center, center);
+      ctx.fillText(isSub ? 'No subs' : 'Add options!', center, center);
       return;
     }
 
-    const arc = (Math.PI * 2) / filtered.length;
+    const arc = (Math.PI * 2) / items.length;
 
-    filtered.forEach((opt, i) => {
-      const start = currentRotation + i * arc;
+    items.forEach((item, i) => {
+      const start = rotation + i * arc;
       const end = start + arc;
 
-      // Segment
       ctx.beginPath();
       ctx.moveTo(center, center);
       ctx.arc(center, center, radius, start, end);
       ctx.closePath();
 
-      const baseColor = TAG_COLORS[opt.tag] || '#58a6ff';
-      // Slightly alternate brightness for readability
+      const baseColor = colorFn(item, i);
       ctx.fillStyle = i % 2 === 0 ? baseColor : adjustBrightness(baseColor, -18);
       ctx.fill();
 
-      // Border
       ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
       // Label
@@ -125,31 +163,55 @@
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#fff';
-      ctx.font = `bold ${Math.min(14, 280 / filtered.length)}px Roboto, sans-serif`;
+      const fontSize = Math.min(isSub ? 12 : 14, (isSub ? 160 : 280) / items.length);
+      ctx.font = `bold ${fontSize}px Roboto, sans-serif`;
       ctx.shadowColor = 'rgba(0,0,0,0.7)';
       ctx.shadowBlur = 3;
 
-      const maxChars = Math.max(8, Math.floor(28 - filtered.length * 0.6));
-      let label = opt.name;
+      const maxChars = Math.max(6, Math.floor((isSub ? 18 : 26) - items.length * 0.5));
+      let label = item.name;
       if (label.length > maxChars) label = label.slice(0, maxChars - 1) + '…';
-      ctx.fillText(label, radius - 14, 0);
+      ctx.fillText(label, radius - (isSub ? 10 : 14), 0);
       ctx.restore();
     });
 
-    // Center circle
+    // Center hub
+    const hubR = isSub ? 18 : 26;
     ctx.beginPath();
-    ctx.arc(center, center, 28, 0, Math.PI * 2);
+    ctx.arc(center, center, hubR, 0, Math.PI * 2);
     ctx.fillStyle = '#0d1117';
     ctx.fill();
-    ctx.strokeStyle = '#f0b429';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = isSub ? '#d2a8ff' : '#f0b429';
+    ctx.lineWidth = isSub ? 2.5 : 3;
     ctx.stroke();
 
-    // Center dot
     ctx.beginPath();
-    ctx.arc(center, center, 8, 0, Math.PI * 2);
-    ctx.fillStyle = '#f0b429';
+    ctx.arc(center, center, isSub ? 5 : 7, 0, Math.PI * 2);
+    ctx.fillStyle = isSub ? '#d2a8ff' : '#f0b429';
     ctx.fill();
+  }
+
+  function drawMainWheel() {
+    const filtered = getFilteredOptions();
+    drawWheelOn(
+      ctx,
+      canvas,
+      filtered,
+      currentRotation,
+      (opt) => TAG_COLORS[opt.tag] || '#58a6ff',
+      false
+    );
+  }
+
+  function drawSubWheel(subs) {
+    drawWheelOn(
+      subCtx,
+      subCanvas,
+      subs,
+      subRotation,
+      (_, i) => SUB_COLORS[i % SUB_COLORS.length],
+      true
+    );
   }
 
   function adjustBrightness(hex, amount) {
@@ -163,6 +225,7 @@
     return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   }
 
+  // ---------- List rendering ----------
   function renderList() {
     const filtered = getFilteredOptions();
     optionsList.innerHTML = '';
@@ -179,14 +242,56 @@
     filtered.forEach((opt) => {
       const li = document.createElement('li');
       li.className = 'option-item';
+      li.dataset.id = opt.id;
+
+      const subCount = (opt.subs || []).length;
+      const isOpen = expandedId === opt.id;
+
       li.innerHTML = `
-        <span class="tag-dot ${opt.tag}"></span>
-        <span class="name" title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</span>
-        <span class="tag-label ${opt.tag}">${TAG_LABELS[opt.tag]}</span>
-        <button class="remove-btn" title="Remove" data-id="${opt.id}">×</button>
+        <div class="option-row">
+          <span class="tag-dot ${opt.tag}"></span>
+          <span class="name" title="${escapeHtml(opt.name)}">${escapeHtml(opt.name)}</span>
+          ${subCount > 0 ? `<span class="sub-count">${subCount}</span>` : ''}
+          <span class="tag-label ${opt.tag}">${TAG_LABELS[opt.tag]}</span>
+          <button class="expand-btn ${isOpen ? 'open' : ''}" title="Sub-options" data-action="expand" data-id="${opt.id}">
+            ${isOpen ? '▾' : '▸'}
+          </button>
+          <button class="remove-btn" title="Remove" data-action="remove" data-id="${opt.id}">×</button>
+        </div>
+        <div class="subs-panel ${isOpen ? 'open' : ''}" data-id="${opt.id}">
+          ${renderSubsPanel(opt)}
+        </div>
       `;
       optionsList.appendChild(li);
     });
+  }
+
+  function renderSubsPanel(opt) {
+    const subs = opt.subs || [];
+    let html = '';
+
+    if (subs.length === 0) {
+      html += `<p class="subs-empty">No sub-options yet</p>`;
+    } else {
+      html += `<ul class="subs-list">`;
+      subs.forEach((s) => {
+        html += `
+          <li class="sub-item">
+            <span class="sub-name">${escapeHtml(s.name)}</span>
+            <button class="sub-remove" data-action="remove-sub" data-parent="${opt.id}" data-sub="${s.id}" title="Remove">×</button>
+          </li>
+        `;
+      });
+      html += `</ul>`;
+    }
+
+    html += `
+      <form class="sub-add-form" data-parent="${opt.id}">
+        <input type="text" placeholder="Add sub-option..." maxlength="40" required autocomplete="off">
+        <button type="submit">Add</button>
+      </form>
+    `;
+    return html;
   }
 
   function escapeHtml(str) {
@@ -196,12 +301,50 @@
   }
 
   function updateUI() {
-    drawWheel();
+    drawMainWheel();
     renderList();
     spinBtn.disabled = getFilteredOptions().length === 0 || isSpinning;
   }
 
-  // Spin logic
+  // ---------- Spin logic ----------
+  function animateSpin({
+    startRot,
+    endRot,
+    duration,
+    onFrame,
+    onDone,
+  }) {
+    const startTime = performance.now();
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+    function frame(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = easeOutCubic(t);
+      const rot = startRot + (endRot - startRot) * eased;
+      onFrame(rot);
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        onDone(endRot);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function computeTargetRotation(current, itemCount, targetIndex) {
+    const segmentAngle = (Math.PI * 2) / itemCount;
+    const targetMiddle = -Math.PI / 2;
+    const targetRotation =
+      targetMiddle - targetIndex * segmentAngle - segmentAngle / 2;
+
+    let delta = targetRotation - (current % (Math.PI * 2));
+    while (delta > 0) delta -= Math.PI * 2;
+    const extraSpins = 5 + Math.random() * 4;
+    delta -= extraSpins * Math.PI * 2;
+    return current + delta;
+  }
+
   function spin() {
     const filtered = getFilteredOptions();
     if (filtered.length === 0 || isSpinning) return;
@@ -209,71 +352,82 @@
     isSpinning = true;
     spinBtn.disabled = true;
     resultEl.classList.add('hidden');
+    resultSubLine.classList.add('hidden');
+    subWheelWrap.classList.add('hidden');
 
-    const segmentAngle = (Math.PI * 2) / filtered.length;
-    // Random number of full spins + random landing
-    const extraSpins = 5 + Math.random() * 4; // 5–9 full rotations
     const randomIndex = Math.floor(Math.random() * filtered.length);
-    // We want the pointer (top = -PI/2 relative to standard) to land in the middle of the segment
-    // Current rotation is absolute; pointer is at top (angle 0 in our visual = -PI/2 from positive x)
-    // Segments are drawn starting from currentRotation
-    // To land on index i, we need the middle of segment i to be at the top (angle -PI/2 from positive x, or 3PI/2)
-    // Top is angle = -Math.PI/2 in standard math coords
-    const targetMiddle = -Math.PI / 2; // pointer direction
-    // middle of segment i under currentRotation: currentRotation + i*arc + arc/2
-    // We want finalRotation + i*arc + arc/2 ≡ targetMiddle  (mod 2PI)
-    // finalRotation ≡ targetMiddle - i*arc - arc/2
-    const targetRotation =
-      targetMiddle - randomIndex * segmentAngle - segmentAngle / 2;
+    const endRotation = computeTargetRotation(
+      currentRotation,
+      filtered.length,
+      randomIndex
+    );
+    const duration = 4200 + Math.random() * 1200;
 
-    // Normalize so we always spin forward a good amount
-    let delta = targetRotation - (currentRotation % (Math.PI * 2));
-    // Make delta negative-ish then add full spins so we spin clockwise-ish visually? 
-    // Actually canvas rotates positive = counterclockwise. For a wheel, either is fine.
-    // Ensure we always add positive extra spins
-    while (delta > 0) delta -= Math.PI * 2;
-    delta -= extraSpins * Math.PI * 2;
-
-    const startRotation = currentRotation;
-    const endRotation = startRotation + delta;
-    const duration = 4500 + Math.random() * 1500; // 4.5–6s
-    const startTime = performance.now();
-
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function animate(now) {
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-      const eased = easeOutCubic(t);
-      currentRotation = startRotation + (endRotation - startRotation) * eased;
-      drawWheel();
-
-      if (t < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        currentRotation = endRotation;
-        // Snap precisely
+    animateSpin({
+      startRot: currentRotation,
+      endRot: endRotation,
+      duration,
+      onFrame: (rot) => {
+        currentRotation = rot;
+        drawMainWheel();
+      },
+      onDone: (finalRot) => {
+        currentRotation = finalRot;
+        drawMainWheel();
         const selected = filtered[randomIndex];
-        showResult(selected);
-        isSpinning = false;
-        spinBtn.disabled = false;
-        drawWheel();
-      }
+        handleMainResult(selected);
+      },
+    });
+  }
+
+  function handleMainResult(selected) {
+    // Show main result immediately
+    resultText.textContent = selected.name;
+    resultTag.textContent = TAG_LABELS[selected.tag];
+    resultTag.className = `result-tag ${selected.tag}`;
+    resultEl.classList.remove('hidden');
+    resultSubLine.classList.add('hidden');
+
+    const subs = selected.subs || [];
+    if (subs.length === 0) {
+      isSpinning = false;
+      spinBtn.disabled = false;
+      return;
     }
 
-    requestAnimationFrame(animate);
+    // Show & spin sub-wheel
+    subWheelWrap.classList.remove('hidden');
+    subRotation = 0;
+    drawSubWheel(subs);
+
+    // Small pause then spin sub
+    setTimeout(() => {
+      const subIndex = Math.floor(Math.random() * subs.length);
+      const endSubRot = computeTargetRotation(subRotation, subs.length, subIndex);
+      const subDuration = 2800 + Math.random() * 1000;
+
+      animateSpin({
+        startRot: subRotation,
+        endRot: endSubRot,
+        duration: subDuration,
+        onFrame: (rot) => {
+          subRotation = rot;
+          drawSubWheel(subs);
+        },
+        onDone: (finalRot) => {
+          subRotation = finalRot;
+          drawSubWheel(subs);
+          const subSelected = subs[subIndex];
+          resultSubText.textContent = subSelected.name;
+          resultSubLine.classList.remove('hidden');
+          isSpinning = false;
+          spinBtn.disabled = false;
+        },
+      });
+    }, 400);
   }
 
-  function showResult(opt) {
-    resultText.textContent = opt.name;
-    resultTag.textContent = TAG_LABELS[opt.tag];
-    resultTag.className = `result-tag ${opt.tag}`;
-    resultEl.classList.remove('hidden');
-  }
-
-  // Event listeners
+  // ---------- Event listeners ----------
   spinBtn.addEventListener('click', spin);
 
   addForm.addEventListener('submit', (e) => {
@@ -286,6 +440,7 @@
       id: crypto.randomUUID(),
       name,
       tag,
+      subs: [],
     });
     saveOptions();
     optionNameInput.value = '';
@@ -294,20 +449,75 @@
     optionNameInput.focus();
   });
 
+  // Delegate clicks inside options list
   optionsList.addEventListener('click', (e) => {
-    const btn = e.target.closest('.remove-btn');
+    const btn = e.target.closest('[data-action]');
     if (!btn) return;
+
+    const action = btn.dataset.action;
     const id = btn.dataset.id;
-    options = options.filter((o) => o.id !== id);
-    saveOptions();
-    updateUI();
+
+    if (action === 'remove') {
+      options = options.filter((o) => o.id !== id);
+      if (expandedId === id) expandedId = null;
+      saveOptions();
+      updateUI();
+      return;
+    }
+
+    if (action === 'expand') {
+      expandedId = expandedId === id ? null : id;
+      renderList();
+      return;
+    }
+
+    if (action === 'remove-sub') {
+      const parentId = btn.dataset.parent;
+      const subId = btn.dataset.sub;
+      const parent = options.find((o) => o.id === parentId);
+      if (parent) {
+        parent.subs = (parent.subs || []).filter((s) => s.id !== subId);
+        saveOptions();
+        renderList();
+      }
+    }
+  });
+
+  // Delegate sub-option form submits
+  optionsList.addEventListener('submit', (e) => {
+    const form = e.target.closest('.sub-add-form');
+    if (!form) return;
+    e.preventDefault();
+
+    const parentId = form.dataset.parent;
+    const input = form.querySelector('input');
+    const name = input.value.trim();
+    if (!name) return;
+
+    const parent = options.find((o) => o.id === parentId);
+    if (parent) {
+      if (!parent.subs) parent.subs = [];
+      parent.subs.push({ id: crypto.randomUUID(), name });
+      saveOptions();
+      input.value = '';
+      // Keep panel open
+      expandedId = parentId;
+      renderList();
+      // Re-focus the new input
+      const newInput = optionsList.querySelector(
+        `.sub-add-form[data-parent="${parentId}"] input`
+      );
+      if (newInput) newInput.focus();
+    }
   });
 
   clearBtn.addEventListener('click', () => {
     if (options.length === 0) return;
     if (!confirm('Remove all options? This cannot be undone.')) return;
     options = [];
+    expandedId = null;
     saveOptions();
+    subWheelWrap.classList.add('hidden');
     updateUI();
   });
 
@@ -316,30 +526,44 @@
       filterBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       currentFilter = btn.dataset.filter;
+      expandedId = null;
       updateUI();
     });
   });
 
-  // Handle resize for crisp canvas on high-DPI / responsive
-  function resizeCanvas() {
-    const container = canvas.parentElement;
-    const maxSize = Math.min(500, container.clientWidth || 500);
-    // Keep internal resolution high for sharpness
+  // ---------- Canvas sizing ----------
+  function resizeCanvases() {
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = maxSize * dpr;
-    canvas.height = maxSize * dpr;
-    canvas.style.width = maxSize + 'px';
-    canvas.style.height = maxSize + 'px';
+
+    // Main
+    const mainContainer = canvas.parentElement;
+    const mainSize = Math.min(420, mainContainer.clientWidth || 420);
+    canvas.width = mainSize * dpr;
+    canvas.height = mainSize * dpr;
+    canvas.style.width = mainSize + 'px';
+    canvas.style.height = mainSize + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // Redraw after resize (currentRotation stays)
-    drawWheel();
+
+    // Sub
+    const subContainer = subCanvas.parentElement;
+    const subSize = Math.min(260, subContainer.clientWidth || 260);
+    subCanvas.width = subSize * dpr;
+    subCanvas.height = subSize * dpr;
+    subCanvas.style.width = subSize + 'px';
+    subCanvas.style.height = subSize + 'px';
+    subCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    drawMainWheel();
+    // Only redraw sub if visible
+    if (!subWheelWrap.classList.contains('hidden')) {
+      // We don't keep the last subs list globally, so just leave it;
+      // next spin will redraw properly.
+    }
   }
 
-  window.addEventListener('resize', () => {
-    resizeCanvas();
-  });
+  window.addEventListener('resize', resizeCanvases);
 
   // Init
-  resizeCanvas();
+  resizeCanvases();
   updateUI();
 })();
