@@ -905,6 +905,142 @@
     }
   });
 
+
+  // ---------- Import / Export ----------
+  const EXPORT_VERSION = 1;
+
+  function buildExportPayload() {
+    return {
+      version: EXPORT_VERSION,
+      exportedAt: new Date().toISOString(),
+      theme: document.body.getAttribute('data-theme') || 'osrs',
+      customTags: customTags,
+      options: options,
+    };
+  }
+
+  function downloadExport() {
+    const payload = buildExportPayload();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `rs-activity-wheel-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function normalizeImportedOptions(list) {
+    if (!Array.isArray(list)) return null;
+    return list.map((o) => ({
+      id: o.id || crypto.randomUUID(),
+      name: String(o.name || '').trim() || 'Untitled',
+      tag: o.tag || 'other',
+      enabled: o.enabled !== false,
+      subs: Array.isArray(o.subs)
+        ? o.subs.map((s) => ({
+            id: s.id || crypto.randomUUID(),
+            name: String(s.name || '').trim() || 'Untitled',
+          }))
+        : [],
+    }));
+  }
+
+  function normalizeImportedTags(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter((t) => t && t.id && t.label)
+      .map((t) => ({
+        id: String(t.id),
+        label: String(t.label).trim(),
+        color: t.color || '#a0a0a0',
+      }));
+  }
+
+  function applyImport(data) {
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid file: not a JSON object');
+    }
+
+    // Accept both our export shape and a raw options array for flexibility
+    let incomingOptions;
+    let incomingTags = [];
+    let incomingTheme = null;
+
+    if (Array.isArray(data)) {
+      incomingOptions = normalizeImportedOptions(data);
+    } else {
+      incomingOptions = normalizeImportedOptions(data.options);
+      incomingTags = normalizeImportedTags(data.customTags);
+      if (data.theme === 'modern' || data.theme === 'osrs') {
+        incomingTheme = data.theme;
+      }
+    }
+
+    if (!incomingOptions) {
+      throw new Error('Invalid file: missing options array');
+    }
+
+    options = incomingOptions;
+    customTags = incomingTags;
+    expandedId = null;
+    activeFilters.clear();
+    hideSubWheel();
+    resultEl.classList.add('hidden');
+
+    saveOptions();
+    saveCustomTags();
+
+    if (incomingTheme) {
+      applyTheme(incomingTheme);
+    }
+
+    updateUI();
+  }
+
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFile = document.getElementById('importFile');
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', downloadExport);
+  }
+
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', () => importFile.click());
+    importFile.addEventListener('change', () => {
+      const file = importFile.files && importFile.files[0];
+      importFile.value = '';
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const count = Array.isArray(data)
+            ? data.length
+            : Array.isArray(data.options)
+              ? data.options.length
+              : 0;
+          const ok = confirm(
+            `Import will replace your current activities and custom tags with this file (${count} activities).\n\nContinue?`
+          );
+          if (!ok) return;
+          applyImport(data);
+        } catch (err) {
+          alert('Import failed: ' + (err && err.message ? err.message : 'could not read file'));
+        }
+      };
+      reader.onerror = () => alert('Import failed: could not read file');
+      reader.readAsText(file);
+    });
+  }
+
   clearBtn.addEventListener('click', () => {
     if (options.length === 0) return;
     if (!confirm('Remove all options? This cannot be undone.')) return;
@@ -1137,8 +1273,26 @@
     });
   }
 
-  // Init
-  applyTheme(loadTheme());
-  resizeCanvases();
-  updateUI();
+  // Init — wait for webfonts so canvas text matches the UI
+  function boot() {
+    applyTheme(loadTheme());
+    resizeCanvases();
+    updateUI();
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    // Explicitly request the weights used on the wheel
+    Promise.all([
+      document.fonts.load('400 14px Roboto'),
+      document.fonts.load('700 14px Roboto'),
+      document.fonts.load('400 16px Roboto'),
+      document.fonts.load('700 16px Roboto'),
+    ])
+      .catch(() => {})
+      .then(() => document.fonts.ready)
+      .then(boot)
+      .catch(boot);
+  } else {
+    boot();
+  }
 })();

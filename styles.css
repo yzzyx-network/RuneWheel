@@ -1117,6 +1117,44 @@ body[data-theme="modern"] .toggle-all-btn:hover:not(:disabled) {
   color: var(--accent-bright, var(--accent));
 }
 
+.io-row {
+  display: flex;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.io-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #4a453c 0%, #353028 100%);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 0.4rem 0.75rem;
+  border-radius: 2px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--bevel-btn);
+}
+
+.io-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-bright, var(--accent));
+}
+
+body[data-theme="modern"] .io-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+  color: var(--text-dim);
+}
+
+body[data-theme="modern"] .io-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .clear-btn {
   background: transparent;
   border: 1px solid var(--border);

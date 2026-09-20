@@ -82,8 +82,13 @@
 
         <div class="sidepanel-footer">
           <button type="button" id="toggleAllBtn" class="toggle-all-btn">Disable all</button>
+          <div class="io-row">
+            <button type="button" id="exportBtn" class="io-btn" title="Export all settings as JSON">Export</button>
+            <button type="button" id="importBtn" class="io-btn" title="Import settings from a JSON file">Import</button>
+            <input type="file" id="importFile" accept="application/json,.json" hidden>
+          </div>
           <button id="clearBtn" class="clear-btn">Clear All</button>
-          <p class="hint">Options, tags &amp; subs saved locally</p>
+          <p class="hint">Options, tags &amp; subs saved locally — export to back up</p>
         </div>
       </aside>
     </main>
@@ -164,6 +169,10 @@
         <section class="help-section">
           <h4>Theme</h4>
           <p>Use the switch in the top-right to toggle between the <strong>OSRS</strong> (stone &amp; gold) theme and the <strong>Modern</strong> dark theme. Your choice is saved.</p>
+        </section>
+        <section class="help-section">
+          <h4>Import &amp; export</h4>
+          <p><strong>Export</strong> downloads a JSON file with your activities, sub-options, custom tags, visibility, and theme. <strong>Import</strong> replaces your current data with a previously exported file (you will be asked to confirm).</p>
         </section>
         <section class="help-section">
           <h4>Clear all</h4>
