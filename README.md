@@ -6,6 +6,7 @@ No install, no backend. Open it in a browser and spin.
 
 > **Disclaimer:** Shamelessly vibecoded for personal use. Expect quirks, feel free to report bugs, it's been working great for me though!
 
+Comes with some basic default activities, `yzzyx personal wheel.json` is my personal configuration that you can import for a fully loaded wheel!
 ---
 
 ## Features
@@ -87,7 +88,7 @@ python3 -m http.server 8000
 | `styles.css` | OSRS + Modern themes |
 | `app.js` | Wheel logic, tags, storage |
 | `wheel.html` | Standalone all-in-one build |
-
+| `yzzyx personal wheel.json` | My personal wheel that you can feel free to import! |
 ---
 
 ## How to use

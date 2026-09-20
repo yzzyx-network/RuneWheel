@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "exportedAt": "2026-09-20T04:38:50.753Z",
+  "theme": "osrs",
+  "customTags": [
+    {
+      "id": "minigames",
+      "label": "Minigames",
+      "color": "#d2a8ff"
+    },
+    {
+      "id": "raids",
+      "label": "Raids",
+      "color": "#7ee787"
+    }
+  ],
+  "options": [
+    {
+      "id": "96be0929-dad2-49f3-b475-5ac09865421f",
+      "name": "Zulrah",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "ff92e82f-12c5-49a7-905c-a5977a46de02",
+      "name": "Vorkath",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "068f0990-83ba-47be-9bcc-d10a0aee039b",
+      "name": "Runecrafting",
+      "tag": "skilling",
+      "subs": [
+        {
+          "id": "5e8d683e-7e86-4e41-91db-dae32a294f78",
+          "name": "Blood runes"
+        },
+        {
+          "id": "1c238d92-9b9c-4f1e-b47e-0a0529d9fb5f",
+          "name": "Wrath runes"
+        },
+        {
+          "id": "db74c326-09e5-45e7-bf65-9986d7121249",
+          "name": "Nature runes"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "a02c941d-71b0-44eb-a7b2-df48708b43ea",
+      "name": "Slayer",
+      "tag": "skilling",
+      "subs": [
+        {
+          "id": "05889b3e-08d2-4e7d-a35b-f60b21370b24",
+          "name": "Kuradel"
+        },
+        {
+          "id": "e1a4889c-4753-4f2d-bc18-0cd61ab8bfa3",
+          "name": "Mortimer"
+        },
+        {
+          "id": "501a3516-52a7-4298-ad69-241aaef28c37",
+          "name": "Krystillia"
+        },
+        {
+          "id": "b14583d9-0671-4f32-896d-4d95f6e3e4fc",
+          "name": "Chaeldar"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "6b5531f0-3ee4-4a73-b08c-b78d2d3fcbbc",
+      "name": "Clue scrolls",
+      "tag": "other",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "9f1870e4-eeca-494d-b66b-2e8844e49225",
+      "name": "Herb Run",
+      "tag": "skilling",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "d78dbb61-5ffe-4272-b6b8-665d203f97a3",
+      "name": "Wintertodt",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "f5b8fa04-bf25-47e3-8d66-38821a92a04b",
+      "name": "Tempoross",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "46d3b38d-4627-4fac-8612-ed2dcdcb0645",
+      "name": "Hallowed Sepulchre",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "e4d6535f-26d5-4336-805b-6ea472dfdae7",
+      "name": "Guardians of the Rift",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "d108c773-5504-4011-98cd-1c5c2890a38d",
+      "name": "Volcanic Mine",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "737143d1-c7ac-42c2-856a-0f5b39381d3d",
+      "name": "Zeah Runecrafting",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "3344bff2-111b-4a13-b34e-d68f789890e9",
+          "name": "Bloods"
+        },
+        {
+          "id": "4c221377-5d3c-4a71-8ac5-1b5be262e850",
+          "name": "Souls"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "31c7b701-9443-4168-9b57-332c3888ca82",
+      "name": "Fishing",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "5dfcb34d-47b4-40ce-93a7-673d8cadfb87",
+          "name": "Anglerfish"
+        },
+        {
+          "id": "ec89c249-ef09-427e-881c-85ead97d5b7b",
+          "name": "Karambwans"
+        },
+        {
+          "id": "b348476e-e6b8-4b0e-9b69-1fcc7304f162",
+          "name": "Monkfish"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "61a09d3c-9232-4ac0-b543-766a7f0ff1ab",
+      "name": "Fletching",
+      "tag": "afk",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "bdb4d535-41c9-4dc4-85f6-0e89a7953b1d",
+      "name": "Firemaking",
+      "tag": "afk",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "049ead40-f1e0-4866-a9bb-e3b2e6b0cee3",
+      "name": "Vale Totems",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "ca1342f9-5f69-4f99-be08-6ed9294b6c42",
+      "name": "Mining",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "108372ef-441b-40ab-8314-20dc17674789",
+          "name": "Runite Ore"
+        },
+        {
+          "id": "b4d4efca-7175-431e-809d-19856099ed24",
+          "name": "Shooting Stars"
+        },
+        {
+          "id": "190a04d9-ef27-4fb1-a185-8a1c4f49e425",
+          "name": "Calcified Deposits"
+        },
+        {
+          "id": "8802762b-3a1d-4d50-ad58-19b70000b678",
+          "name": "Motherlode Mine"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "d7a37250-6aef-4f08-953c-e91bbc6d1b01",
+      "name": "Giant Mole",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "3b169d65-3cdb-47b5-802f-2c6356ffec0a",
+      "name": "Amoxliatl",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "e1dd8a08-2bc6-4d29-bae5-3ec1d318812a",
+      "name": "Scurrius",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "663f448b-405f-47ea-9848-779251a91b73",
+      "name": "Nightmare",
+      "tag": "boss",
+      "subs": [
+        {
+          "id": "c3274563-9387-45d0-87e3-b514f6a79c71",
+          "name": "Mass World"
+        },
+        {
+          "id": "4406b38a-24aa-4c3a-b1f1-156a7ce626bd",
+          "name": "Solo"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "748bd91a-7eca-49cf-8581-2f0fb779a931",
+      "name": "Doom of Mokhaiotl",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "fdf38969-073e-4794-985c-bb29492ce8a3",
+      "name": "Barrows",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "e56c0104-9f0f-4223-baa3-c93ad288ee85",
+      "name": "God Wars",
+      "tag": "boss",
+      "subs": [
+        {
+          "id": "ffc73b2d-ebc4-488a-b2e3-783a3b2ce6f8",
+          "name": "General Graardor"
+        },
+        {
+          "id": "6bb04df6-b78e-43c9-b202-39a52b04e11c",
+          "name": "Commander Zilyana"
+        },
+        {
+          "id": "5a8ee10b-0bdb-46d1-b211-9199f0f4daec",
+          "name": "K'ril Tsutsaroth"
+        },
+        {
+          "id": "130e997a-8a37-43a2-a23a-d44b8da13416",
+          "name": "Kree'arra"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "a5118544-753b-4a28-8c70-d518caeadda2",
+      "name": "Woodcutting",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "96263a6d-f17a-42a5-89eb-8012a72ec6f7",
+          "name": "Redwoods"
+        },
+        {
+          "id": "9876772a-7260-4424-8fe4-3b86a498d203",
+          "name": "Ironwoods"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "20c5dc1b-7d46-4d44-9a88-f5a8cbd93410",
+      "name": "Hunter Rumour",
+      "tag": "skilling",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "3244dea9-85ec-472a-b174-37f3388931c2",
+      "name": "Deep Sea Trawling",
+      "tag": "skilling",
+      "subs": [
+        {
+          "id": "f44dec42-3b09-4b62-8fdc-ad99a036ccfb",
+          "name": "Marlin"
+        },
+        {
+          "id": "e0f6f873-c85b-41c0-bfa7-4abbc178d2bf",
+          "name": "Bluefin"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "9afcb067-049f-4ed5-a841-99206ea27f7a",
+      "name": "Chambers of Xeric",
+      "tag": "raids",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "a1902584-c1b4-4192-826d-4fb21ab3f01a",
+      "name": "Tombs of Amascut",
+      "tag": "raids",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "9dfe7b05-2db2-4b04-aea2-1cf900b5012d",
+      "name": "Theatre of Blood",
+      "tag": "raids",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "b5e87bd8-9c49-4776-ba1c-18af99cc5241",
+      "name": "Sarachnis",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "57c7fbd7-0272-483b-8f2b-912e830311b3",
+      "name": "Duke Sucellus",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "f316fcb5-e8ae-49d8-83e0-4c78cad40d8a",
+      "name": "Whisperer",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "75a9d756-b2b5-44e1-965b-c43f8542512a",
+      "name": "Leviathan",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "99e72be0-764b-49a8-be70-5e560988aa91",
+      "name": "Vardorvis",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "40cbdb31-6d46-49a7-be43-eaa14040a18a",
+      "name": "Corporeal Beast",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "4c49ad7d-f5d4-405d-8882-ee11307380b8",
+      "name": "Gauntlet",
+      "tag": "boss",
+      "subs": [
+        {
+          "id": "78767e9c-f291-4066-b864-3ede0d7b3ce7",
+          "name": "Regular"
+        },
+        {
+          "id": "d3db3544-3ee9-4715-8627-1e3709bde88d",
+          "name": "Corrupted"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "7b2ef92f-e421-496a-bc46-d4d636c263c2",
+      "name": "Hueycoatl",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "6d919c90-5fc9-4d0e-9bff-a379fe42d25f",
+      "name": "Mad Angel",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "7b40e6d1-3d62-4ad0-b0b8-fb8a0029a371",
+      "name": "Maggot King",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "2088847c-91a2-4340-929a-76be384bb7ea",
+      "name": "Moons of Peril",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "97544eec-cc35-4316-95c0-a6951e4e651a",
+      "name": "Nex",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "82e08c92-bff4-4a45-b6b1-315b3f4a7d19",
+      "name": "Phantom Muspah",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "5d23f2d1-2da9-49c0-9b7c-af969d834dcc",
+      "name": "Castle Wars",
+      "tag": "afk",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "9bad7f91-29d5-4ea4-af9d-5cde03c82dd7",
+      "name": "Mage Training Arena",
+      "tag": "minigames",
+      "subs": [
+        {
+          "id": "55584e1d-c58b-462e-add5-df824c71f0bc",
+          "name": "Telekinetic Theatre"
+        },
+        {
+          "id": "4e2fb746-a819-4a2f-918b-5de6998be5e2",
+          "name": "Creature Graveyard"
+        },
+        {
+          "id": "9f782e38-27b2-4a71-a173-9fce870e07a9",
+          "name": "Enchanting Chamber"
+        },
+        {
+          "id": "e94c3cbb-0851-4128-bc13-76d68be9b977",
+          "name": "Alchemists' Playground"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "5dd6de2d-f9cb-44aa-89f0-1e4ed33a210a",
+      "name": "Soul Wars",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "9a575b2e-1b53-459c-8c8f-291cf076ee94",
+      "name": "Barracuda Trials",
+      "tag": "skilling",
+      "subs": [
+        {
+          "id": "4c93925e-99de-4fa5-8bf4-7b69b655a5bd",
+          "name": "Tempor Tantrum"
+        },
+        {
+          "id": "5f3cd227-a50c-43d5-bba2-e84681a46fb3",
+          "name": "Jubbly Jive"
+        },
+        {
+          "id": "71f9874d-a58e-4c43-931e-d984df27d4ff",
+          "name": "Gwenith Glide"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "bc0efacc-8af2-429a-9182-0a7c22fad674",
+      "name": "Pyramid Plunder",
+      "tag": "minigames",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "a5a11979-a401-4c2a-87a4-432a0e9996db",
+      "name": "Thieving",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "91c4c024-6be8-4006-8f3a-14f755453f46",
+          "name": "Ardy Knights"
+        },
+        {
+          "id": "745613fc-aee9-4424-8aa6-fd30a67646bc",
+          "name": "Stealing Artefacts"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "5a5bb263-30bc-4aa3-a3a0-9b740330a874",
+      "name": "Pickpocketing",
+      "tag": "skilling",
+      "subs": [
+        {
+          "id": "6531afe6-23b0-462a-aba4-933cb42ae6bf",
+          "name": "Elves"
+        },
+        {
+          "id": "ada3a929-7e6f-4a68-902d-becdddd7daf7",
+          "name": "Vyres"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "51c20de4-e445-4399-80b7-2d2d4d469c5e",
+      "name": "PK Rev Caves",
+      "tag": "other",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "1ca9795e-e986-4518-97e4-b54800991179",
+      "name": "PK Spindel",
+      "tag": "other",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "3e9314ee-b1ea-48c7-bcde-48c8f58215af",
+      "name": "Aerial Fishing",
+      "tag": "skilling",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "71d51973-8017-4611-965e-c0587f598bd6",
+      "name": "Smithing",
+      "tag": "afk",
+      "subs": [
+        {
+          "id": "fdf3a4d3-5d81-48d7-936b-537dd1780a97",
+          "name": "Mithril Nails"
+        },
+        {
+          "id": "150554ba-ae5b-4759-9b30-a11caf8fc315",
+          "name": "Steel Cannonballs"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "id": "1f360671-ae76-4c01-8c27-051b954ed7e6",
+      "name": "Phosani's Nightmare",
+      "tag": "boss",
+      "subs": [],
+      "enabled": true
+    },
+    {
+      "id": "ab3a2679-8333-417e-ae5f-4741ba04d50a",
+      "name": "Last Man Standing",
+      "tag": "other",
+      "subs": [],
+      "enabled": true
+    }
+  ]
+}
