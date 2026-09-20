@@ -4,9 +4,10 @@ A polished, browser-based **spinning wheel** for picking your next RuneScape act
 
 No install, no backend. Open it in a browser and spin.
 
+Comes with some basic default activities, `yzzyx personal wheel.json` is my personal configuration that you can import for a fully loaded wheel!
+
 > **Disclaimer:** Shamelessly vibecoded for personal use. Expect quirks, feel free to report bugs, it's been working great for me though!
 
-Comes with some basic default activities, `yzzyx personal wheel.json` is my personal configuration that you can import for a fully loaded wheel!
 ---
 
 ## Features
@@ -115,10 +116,11 @@ python3 -m http.server 8000
 
 ```
 .
-├── index.html      # App shell
-├── styles.css      # Themes & layout
-├── app.js          # Logic
-├── wheel.html      # Self-contained single-file version
+├── index.html                    # App shell
+├── styles.css                    # Themes & layout
+├── app.js                        # Logic
+├── wheel.html                    # Self-contained single-file version
+├── yzzyx personal wheel.json     # My personal wheel you can import
 └── README.md
 ```
 
@@ -126,4 +128,4 @@ python3 -m http.server 8000
 
 ## License
 
-Use freely for personal or community RuneScape tools. Not affiliated with Jagex.
+Use freely for anything you want. Not affiliated with Jagex.
